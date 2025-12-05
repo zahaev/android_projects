@@ -1,4 +1,4 @@
-package com.example.myapplication
+package com.example.myapplication.view
 
 import android.content.Intent
 import android.os.Bundle
@@ -7,6 +7,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.Glide
 import android.util.Log
+import com.example.myapplication.R
+import com.example.myapplication.model.CharacterRepository
 
 class CharacterDetailActivity : AppCompatActivity() {
 

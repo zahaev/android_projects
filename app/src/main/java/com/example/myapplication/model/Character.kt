@@ -1,9 +1,9 @@
-package com.example.myapplication
+package com.example.myapplication.model
 
 import android.os.Parcelable
 import android.os.Parcel
 import android.os.Parcelable.Creator
-import java.io.StringBufferInputStream
+
 
 data class Character(
     val id: Int,

@@ -1,4 +1,4 @@
-package com.example.myapplication
+package com.example.myapplication.view
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -6,7 +6,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide // или Picasso
-import com.example.myapplication.Character
+import com.example.myapplication.R
+import com.example.myapplication.model.Character
 
 class CharacterAdapter(
     private val characters: List<Character>,

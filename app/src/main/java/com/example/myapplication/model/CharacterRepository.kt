@@ -1,5 +1,5 @@
 // CharacterRepository.kt
-package com.example.myapplication
+package com.example.myapplication.model
 
 object CharacterRepository {
     val characters = listOf(

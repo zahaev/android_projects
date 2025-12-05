@@ -1,4 +1,4 @@
-package com.example.myapplication
+package com.example.myapplication.view
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
@@ -11,6 +11,8 @@ import android.content.Intent
 //временно
 import android.widget.Toast
 import android.util.Log
+import com.example.myapplication.R
+import com.example.myapplication.model.CharacterRepository
 
 class MainActivity : AppCompatActivity() {
 
