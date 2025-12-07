@@ -10,14 +10,23 @@ import com.example.myapplication.R
 import com.example.myapplication.model.Character
 
 class CharacterAdapter(
-    private val characters: List<Character>,
-    private val onItemClick: (Character) -> Unit //  обработчик клика
+    characters: List<Character>, // можно оставить val в конструкторе
+    private val onItemClick: (Character) -> Unit
 ) : RecyclerView.Adapter<CharacterAdapter.ViewHolder>() {
+
+    // Внутреннее изменяемое свойство
+    private var charactersList: MutableList<Character> = characters.toMutableList()
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val imageView: ImageView = view.findViewById(R.id.imageViewAvatar)
         val nameTextView: TextView = view.findViewById(R.id.textViewName)
         val ageTextView: TextView = view.findViewById(R.id.textViewAge)
+    }
+
+    fun updateCharacters(newCharacters: List<Character>) {
+        charactersList.clear()
+        charactersList.addAll(newCharacters)
+        notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -27,23 +36,20 @@ class CharacterAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val character = characters[position]
+        val character = charactersList[position] // ← используем charactersList
         holder.nameTextView.text = character.name
         holder.ageTextView.text = "Age: ${character.age}"
 
-        // Загрузка изображения (пример с Glide)
         Glide.with(holder.imageView.context)
-            .load(character.imageUrl)
-            //.placeholder(R.drawable.placeholder_avatar) // опционально
+            .load(character.imageUrl.trim()) // ← добавил .trim() на случай пробелов
             .into(holder.imageView)
 
-        //  Динамическое описание для доступности
         holder.imageView.contentDescription = "${character.name} avatar"
-        // Обработка клика
+
         holder.itemView.setOnClickListener {
             onItemClick(character)
         }
     }
 
-    override fun getItemCount() = characters.size
+    override fun getItemCount() = charactersList.size // ← и здесь charactersList
 }

@@ -1,24 +1,27 @@
 package com.example.myapplication.view
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import android.content.Intent
+import com.example.myapplication.R
+import com.example.myapplication.model.Character
+import com.example.myapplication.viewmodel.MainViewModel
 //временно
 import android.widget.Toast
 import android.util.Log
-import com.example.myapplication.R
-import com.example.myapplication.model.CharacterRepository
+
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: CharacterAdapter
-
+    private lateinit var viewModel: MainViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -27,15 +30,13 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
 
+        viewModel=ViewModelProvider(this)[MainViewModel::class.java]
+
         // Настройка RecyclerView
         recyclerView = findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        // Список данных из characters
-            val characters = CharacterRepository.characters
-
-
-        adapter = CharacterAdapter(characters) { character ->
+        adapter = CharacterAdapter(emptyList()) { character ->
             Log.d("CLICK", "Opening character: ${character.name}, ID: ${character.id}")//лишний лог
             Toast.makeText(this, "Opening ${character.name}", Toast.LENGTH_SHORT).show()//лишний тост
             // Передаём весь объект (благодаря Parcelable)
@@ -46,6 +47,10 @@ class MainActivity : AppCompatActivity() {
         }
         recyclerView.adapter = adapter
 
+        //добавим метод updateCharacters() в адаптер
+        viewModel.characters.observe(this){characters ->
+            adapter.updateCharacters(characters)
+        }
         // Обработка системных инсетов (отступы под статус-бар и т.д.)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.recyclerView)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
