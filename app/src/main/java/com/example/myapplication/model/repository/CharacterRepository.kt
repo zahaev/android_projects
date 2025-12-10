@@ -1,6 +1,8 @@
 // CharacterRepository.kt
 package com.example.myapplication.model
 
+import com.example.myapplication.model.domain.Character
+
 object CharacterRepository {
     val characters = listOf(
         Character(
