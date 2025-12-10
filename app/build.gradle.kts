@@ -51,6 +51,9 @@ dependencies {
     implementation(libs.androidx.lifecycle.livedata)
 
     implementation(libs.androidx.cardview)
+        //БД
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
 
     // Glide через version catalog
     implementation(libs.glide)
