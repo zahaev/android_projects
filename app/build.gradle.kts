@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
 
+    id("kotlin-kapt") // обязательно для Room
+
 }
 
 android {
@@ -52,9 +54,14 @@ dependencies {
 
     implementation(libs.androidx.cardview)
         //БД
-    implementation(libs.retrofit)
-    implementation(libs.retrofit.gson)
+    implementation("androidx.room:room-runtime:2.6.1")
+    implementation("androidx.room:room-compiler:2.0.1") // Используйте 2.6.1, если поддерживается
+    implementation("androidx.room:room-ktx:2.6.1")
 
     // Glide через version catalog
     implementation(libs.glide)
+
+
+// Coroutines for Room (рекомендуется для асинхронной работы)
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 }
