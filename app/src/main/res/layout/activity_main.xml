@@ -1,128 +1,147 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
-
-    <!-- Header -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#FFFFFF"
-        android:padding="28dp"
-        android:gravity="center_vertical">
-
-        <ImageView
-            android:layout_width="48dp"
-            android:layout_height="wrap_content"
-            android:contentDescription="Logo"
-            android:src="@drawable/ic_launcher" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Rick and Morty API"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="#1E1E1E"
-            android:gravity="center"
-            android:layout_marginStart="16dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:text="Docs"
-            android:textColor="#1E1E1E"
-            android:textSize="14sp"
-            />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="About"
-            android:textSize="14sp"
-            android:textColor="#1E1E1E"
-            android:padding="8dp" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="SUPPORT US"
-            android:textSize="12sp"
-            android:background="@drawable/btn_support_us"
-            android:textColor="#FF9800"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="4dp" />
-
-    </LinearLayout>
-
-    <!-- Content -->
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="2"
-        android:background="#26262B">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="16dp"
-            android:clipToPadding="false"
-            android:contentDescription="Персонажи of Rick and Morty " />
-        <!--  НИКАКИХ ДРУГИХ ЭЛЕМЕНТОВ ВНУТРИ FrameLayout НЕТ! -->
-
-    </FrameLayout>
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="#1B1A1A"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:padding="30dp">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <!-- Горизонтальный ряд из первых трёх TextView -->
+        <!-- Header -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:background="#FFFFFF"
+            android:padding="28dp"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="wrap_content"
+                android:contentDescription="Logo"
+                android:src="@drawable/ic_launcher" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="14dp"
-                android:text="Characters:826"
-                android:textColor="#FFFF" />
+                android:layout_weight="1"
+                android:text="Rick and Morty API"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="#1E1E1E"
+                android:gravity="center"
+                android:layout_marginStart="16dp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="14dp"
-                android:text="Locations:126"
-                android:textColor="#FFFF" />
+                android:padding="8dp"
+                android:text="Docs"
+                android:textColor="#1E1E1E"
+                android:textSize="14sp"
+                />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="14dp"
-                android:text="Episodes:51"
+                android:text="About"
+                android:textSize="14sp"
+                android:textColor="#1E1E1E"
+                android:padding="8dp" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SUPPORT US"
+                android:textSize="12sp"
+                android:background="@drawable/btn_support_us"
+                android:textColor="#FF9800"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="4dp" />
+
+        </LinearLayout>
+
+        <!-- Content -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="2"
+            android:background="#26262B">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="16dp"
+                android:clipToPadding="false"
+                android:contentDescription="Персонажи of Rick and Morty " />
+            <!--  НИКАКИХ ДРУГИХ ЭЛЕМЕНТОВ ВНУТРИ FrameLayout НЕТ! -->
+
+        </FrameLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="#1B1A1A"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="30dp">
+
+            <!-- Горизонтальный ряд из первых трёх TextView -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="14dp"
+                    android:text="Characters:826"
+                    android:textColor="#FFFF" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="14dp"
+                    android:text="Locations:126"
+                    android:textColor="#FFFF" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="14dp"
+                    android:text="Episodes:51"
+                    android:textColor="#FFFF" />
+
+            </LinearLayout>
+            <!-- Второй горизонтальный ряд TextView -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Server status"
                 android:textColor="#FFFF" />
 
         </LinearLayout>
-        <!-- Второй горизонтальный ряд TextView -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Server status"
-            android:textColor="#FFFF" />
 
     </LinearLayout>
 
-</LinearLayout>
+    <!-- FAB поверх всего контента -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAdd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:contentDescription="Add new character"
+        app:srcCompat="@android:drawable/ic_input_add" />
+    <!-- экранное чтение реплики для слабовидящих -->
 
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
