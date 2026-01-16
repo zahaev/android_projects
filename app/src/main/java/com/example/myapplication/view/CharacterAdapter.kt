@@ -5,9 +5,12 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide // или Picasso
+import com.bumptech.glide.Glide
+import androidx.recyclerview.widget.DiffUtil
 import com.example.myapplication.R
-import com.example.myapplication.model.Character
+import com.example.myapplication.model.domain.Character
+
+import androidx.paging.PagingDataAdapter
 
 class CharacterAdapter(
     characters: List<Character>, // можно оставить val в конструкторе
@@ -24,9 +27,20 @@ class CharacterAdapter(
     }
 
     fun updateCharacters(newCharacters: List<Character>) {
+        val diffCallback = object : DiffUtil.Callback() {
+            override fun getOldListSize() = charactersList.size
+            override fun getNewListSize() = newCharacters.size
+            override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                return charactersList[oldItemPosition].id == newCharacters[newItemPosition].id
+            }
+            override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                return charactersList[oldItemPosition] == newCharacters[newItemPosition]
+            }
+        }
+        val diffResult = DiffUtil.calculateDiff(diffCallback)
         charactersList.clear()
         charactersList.addAll(newCharacters)
-        notifyDataSetChanged()
+        diffResult.dispatchUpdatesTo(this)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -34,20 +48,31 @@ class CharacterAdapter(
             .inflate(R.layout.item_character, parent, false)
         return ViewHolder(view)
     }
+    private var onItemLongClick: ((Character) -> Boolean)? = null
 
+    fun setOnItemLongClickListener(listener: (Character) -> Boolean) {
+        this.onItemLongClick = listener
+    }
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val character = charactersList[position] // ← используем charactersList
+        val character = charactersList[position]
         holder.nameTextView.text = character.name
         holder.ageTextView.text = "Age: ${character.age}"
 
+        // Безопасная загрузка изображения
+        val url = character.imageUrl.trim().takeIf { it.isNotEmpty() }
         Glide.with(holder.imageView.context)
-            .load(character.imageUrl.trim()) // ← добавил .trim() на случай пробелов
+            .load(url)
+            .placeholder(R.drawable.placeholder_avatar)
+            .error(R.drawable.error_avatar)
             .into(holder.imageView)
 
         holder.imageView.contentDescription = "${character.name} avatar"
 
         holder.itemView.setOnClickListener {
             onItemClick(character)
+        }
+            holder.itemView.setOnLongClickListener {
+            onItemLongClick?.invoke(character) ?: false
         }
     }
 
