@@ -55,13 +55,19 @@ dependencies {
     implementation(libs.androidx.cardview)
         //БД
     implementation("androidx.room:room-runtime:2.6.1")
-    implementation("androidx.room:room-compiler:2.0.1") // Используйте 2.6.1, если поддерживается
+    kapt("androidx.room:room-compiler:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
 
     // Glide через version catalog
     implementation(libs.glide)
 
+    //пагинация
+    implementation("androidx.paging:paging-runtime:3.3.2")
 
 // Coroutines for Room (рекомендуется для асинхронной работы)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
+}
+configurations.all {
+    exclude(group = "com.intellij", module = "annotations")
 }
