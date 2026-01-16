@@ -1,4 +1,4 @@
-package com.example.myapplication.model
+package com.example.myapplication.model.domain
 
 import android.os.Parcelable
 import android.os.Parcel
@@ -26,6 +26,7 @@ data class Character(
         parcel.writeString(name)
         parcel.writeString(age)
         parcel.writeString(imageUrl)
+        parcel.writeString(description)
     }
 
     override fun describeContents(): Int = 0

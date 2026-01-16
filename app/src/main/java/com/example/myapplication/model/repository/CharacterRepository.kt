@@ -1,48 +1,93 @@
-// CharacterRepository.kt
-package com.example.myapplication.model
+// com/example/myapplication/model/repository/CharacterRepository.kt
+package com.example.myapplication.model.repository
 
+import android.util.Log
+import android.content.Context
 import com.example.myapplication.model.domain.Character
+import com.example.myapplication.model.local.AppDatabase
+import com.example.myapplication.model.local.CharacterEntity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 
 object CharacterRepository {
-    val characters = listOf(
-        Character(
-            id = 1,
-            name = "Rick Sanchez",
-            age = "70",
-            imageUrl = "https://rickandmorty-friends.vercel.app/_next/image?url=https%3A%2F%2Frickandmortyapi.com%2Fapi%2Fcharacter%2Favatar%2F1.jpeg&w=1920&q=75",
-            description = "Гениальный, но пьяный учёный из измерения C-137. Создатель портал-пистолета. Дедушка Морти."
-        ),
-        Character(
-            id = 2,
-            name = "Morty Smith",
-            age = "14",
-            imageUrl = "https://rickandmortyapi.com/api/character/avatar/2.jpeg",
-            description = "Добродушный, но наивный подросток. Часто попадает в межпространственные приключения со своим дедом Риком."
-        ),
-        Character(
-            id = 3,
-            name = "Summer Smith",
-            age = "17",
-            imageUrl = "https://rickandmorty-friends.vercel.app/_next/image?url=https%3A%2F%2Frickandmortyapi.com%2Fapi%2Fcharacter%2Favatar%2F3.jpeg&w=1920&q=75",
-            description = "Старшая сестра Морти. Амбициозная, социальная, иногда участвует в приключениях семьи."
-        ),
-        Character(
-            id = 4,
-            name = "Beth Smith",
-            age = "34",
-            imageUrl = "https://rickandmorty-friends.vercel.app/_next/image?url=https%3A%2F%2Frickandmortyapi.com%2Fapi%2Fcharacter%2Favatar%2F4.jpeg&w=1920&q=75",
-            description = "Хирург-ветеринар, дочь Рика. Сложные отношения с мужем Джерри и отцом Риком."
-        ),
-        Character(
-            id = 5,
-            name = "Jerry Smith",
-            age = "35",
-            imageUrl = "https://rickandmorty-friends.vercel.app/_next/image?url=https%3A%2F%2Frickandmortyapi.com%2Fapi%2Fcharacter%2Favatar%2F5.jpeg&w=1920&q=75",
-            description = "Отец Морти и Саммер. Нерешительный, консервативный, часто чувствует себя неуверенно рядом с Риком."
-        )
-    )
 
-    fun getCharacterById(id: Int): Character? {
-        return characters.find { it.id == id }
+    private lateinit var database: AppDatabase
+
+
+    fun initialize(context: Context) {
+        database = AppDatabase.getDatabase(context)
+    }
+    // Получение списка персонажей (из БД)
+    suspend fun getCharacters(): List<Character> {
+        return withContext(Dispatchers.IO) {
+            val entities = database.characterDao().getAllCharacters()
+            entities.map { entity ->
+                Character(
+                    id = entity.id,
+                    name = entity.name,
+                    age = entity.age,
+                    imageUrl = entity.imageUrl,
+                    description = entity.description
+                )
+            }
+        }
+    }
+    suspend fun getCharactersPage(page: Int, pageSize: Int = 5): List<Character> {
+        return withContext(Dispatchers.IO) {
+            val offset = page * pageSize
+            database.characterDao()
+                .getCharactersPage(offset, pageSize)
+                .map { entity ->
+                    Character(
+                        id = entity.id,
+                        name = entity.name,
+                        age = entity.age,
+                        imageUrl = entity.imageUrl,
+                        description = entity.description
+                    )
+                }
+        }
+    }
+
+    // Получение одного персонажа по ID (из БД)
+    suspend fun getCharacterById(id: Int): Character? {
+        return withContext(Dispatchers.IO) {
+            val entity = database.characterDao().getCharacterById(id)
+            entity?.let {
+                Character(
+                    id = it.id,
+                    name = it.name,
+                    age = it.age,
+                    imageUrl = it.imageUrl,
+                    description = it.description
+                )
+            }
+        }
+    }
+    suspend fun insertCharacter(character: Character){
+        withContext(Dispatchers.IO){
+            val entity = CharacterEntity(
+                id=0, //автоинкремент room
+                name = character.name,
+                age = character.age,
+                imageUrl = character.imageUrl,
+                description = character.description
+            )
+            database.characterDao().insertCharacter(entity)
+        }
+    }
+    suspend fun deleteCharacter(id: Int) {
+        withContext(Dispatchers.IO) {
+            try {
+                database.characterDao().deleteCharacter(id) // ← Передаём ID напрямую
+            } catch (e: Exception) {
+                Log.e("CharacterRepository", "Failed to delete character $id", e)
+                throw e
+            }
+        }
     }
 }
