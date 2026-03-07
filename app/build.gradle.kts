@@ -13,7 +13,7 @@ android {
     defaultConfig {
         applicationId = "com.example.myapplication"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
@@ -63,9 +63,23 @@ dependencies {
 
     //пагинация
     implementation("androidx.paging:paging-runtime:3.3.2")
+    //ниже не трогать
 
 // Coroutines for Room (рекомендуется для асинхронной работы)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
+    // Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+
+// JSON converter (Moshi)
+    implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
+
+// Moshi
+    implementation("com.squareup.moshi:moshi-kotlin:1.15.0")
+
+// OkHttp logging (для отладки запросов)
+    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
+
 
 }
 configurations.all {
