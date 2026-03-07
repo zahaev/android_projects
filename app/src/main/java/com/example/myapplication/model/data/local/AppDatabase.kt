@@ -1,14 +1,20 @@
 // com/example/myapplication/model/local/AppDatabase.kt
-package com.example.myapplication.model.local
+package com.example.myapplication.model.data.local
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.example.myapplication.model.data.repository.CharacterDao
 
-@Database(entities = [CharacterEntity::class], version = 1, exportSchema = false)
-@TypeConverters()
+@Database(
+    entities = [CharacterEntity::class,
+        MetadataEntity::class,
+        FavoriteCharacterEntity::class],
+    version = 3, exportSchema = false
+)
+@TypeConverters(RoomConverters::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun characterDao(): CharacterDao
@@ -22,7 +28,7 @@ abstract class AppDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "character_database")
+                    "character_database_v3")
                     .fallbackToDestructiveMigration()// снос бд при ее изменении
                     .build()
                 INSTANCE = instance
