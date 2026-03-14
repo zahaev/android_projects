@@ -2,6 +2,7 @@
 package com.example.myapplication.view
 
 import android.app.AlertDialog
+import androidx.lifecycle.lifecycleScope
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -17,7 +18,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.R
-import com.example.myapplication.model.repository.CharacterRepository
+import kotlinx.coroutines.launch
+import com.example.myapplication.model.domain.repository.CharacterRepository
+import com.example.myapplication.viewmodel.MainViewModelFactory
 import com.example.myapplication.viewmodel.MainViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
@@ -34,8 +37,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         Log.d("MAIN", "Initializing repository...")
-        CharacterRepository.initialize(applicationContext)
-        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
+        //CharacterRepository.initialize(applicationContext)
+        viewModel = ViewModelProvider(
+            this,
+            MainViewModelFactory(applicationContext)
+        )[MainViewModel::class.java]
         Log.d("MAIN", "Repository initialized")
 
         setupRecyclerView()
@@ -65,16 +71,23 @@ class MainActivity : AppCompatActivity() {
         }
         recyclerView.adapter = adapter
 
-        // Долгое нажатие → удаление
+        // Долгое нажатие → меню с выбором (Favorites / Delete)
         adapter.setOnItemLongClickListener { character ->
-            AlertDialog.Builder(this)
-                .setTitle("Delete Character")
-                .setMessage("Are you sure you want to delete ${character.name}?")
-                .setPositiveButton("Delete") { _, _ ->
-                    viewModel.deleteCharacter(character.id)
-                }
-                .setNegativeButton("Cancel", null)
-                .show()
+            lifecycleScope.launch {
+                val isFavorite = viewModel.isFavoriteSync(character.id)
+
+                AlertDialog.Builder(this@MainActivity)
+                    .setTitle(character.name)
+                    .setMessage(if (isFavorite) "Remove from favorites?" else "Add to favorites?")
+                    .setPositiveButton(if (isFavorite) "Remove" else "Add to Favorites") { _, _ ->
+                        viewModel.toggleFavorite(character)
+                    }
+                    .setNeutralButton("Delete") { _, _ ->
+                        viewModel.deleteCharacter(character.id)
+                    }
+                    .setNegativeButton("Cancel", null)
+                    .show()
+            }
             true
         }
 
@@ -98,8 +111,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupObservers() {
-        viewModel.characters.observe(this) { characters ->
-            adapter.updateCharacters(characters)
+        // ✅ charactersUi вместо characters
+        viewModel.charactersUi.observe(this) { charactersUi ->
+            adapter.updateCharacters(charactersUi)
         }
     }
 
@@ -132,7 +146,13 @@ class MainActivity : AppCompatActivity() {
                 val url = urlInput.text.toString().takeIf { it.isNotBlank() } ?: ""
                 val desc = descInput.text.toString().takeIf { it.isNotBlank() } ?: "No description"
 
-                viewModel.addCharacter(name, age, url, desc)
+                viewModel.addCharacter(
+                    name = name,
+                    status = age,        // временно используем age как status
+                    species = "Human",   // default значение
+                    gender = "Unknown",  // default значение
+                    imageUrl = url
+                )
             }
             .setNegativeButton("Cancel", null)
             .show()
