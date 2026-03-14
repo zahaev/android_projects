@@ -1,4 +1,3 @@
-// com/example/myapplication/viewmodel/MainViewModel.kt
 package com.example.myapplication.viewmodel
 
 import android.util.Log
@@ -7,13 +6,17 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.model.domain.Character
-import com.example.myapplication.model.repository.CharacterRepository
+import com.example.myapplication.model.data.local.ApiLocation
+import com.example.myapplication.model.domain.repository.CharacterRepository
+import com.example.myapplication.view.CharacterUi
 import kotlinx.coroutines.launch
 
-class MainViewModel : ViewModel() {
+class MainViewModel(
+    private val repository: CharacterRepository
+) : ViewModel() {
 
-    private val _characters = MutableLiveData<List<Character>>()
-    val characters: LiveData<List<Character>> = _characters
+    private val _charactersUi = MutableLiveData<List<CharacterUi>>()
+    val charactersUi: LiveData<List<CharacterUi>> = _charactersUi
 
     private var currentPage = 0
     private var isLastPage = false
@@ -23,8 +26,20 @@ class MainViewModel : ViewModel() {
         currentPage = 0
         isLastPage = false
         isLoading = false
-        _characters.value = emptyList()
+        _charactersUi.value = emptyList()  // ✅ Исправлено: charactersUi
         loadNextPage()
+    }
+
+    suspend fun isFavoriteSync(id: Int): Boolean {
+        return repository.isFavorite(id)
+    }
+
+    fun toggleFavorite(character: Character) {
+        viewModelScope.launch {
+            repository.toggleFavorite(character)
+            // Обновляем список после изменения избранного
+            loadFirstPage()
+        }
     }
 
     fun loadNextPage(onComplete: () -> Unit = {}) {
@@ -35,16 +50,17 @@ class MainViewModel : ViewModel() {
         isLoading = true
         viewModelScope.launch {
             try {
-                //val offset = currentPage *PAGE_SIZE//5,10,15....
-                val newChars = CharacterRepository.getCharactersPage(currentPage, 5)
+                // ✅ Исправлено: используем getCharactersPageUi (возвращает CharacterUi)
+                val newChars = repository.getCharactersPageUi(currentPage, 5)
+
                 if (newChars.isEmpty()) {
                     isLastPage = true
                 } else {
-                    val currentList = _characters.value.orEmpty().toMutableList()
-                    val existingIds= currentList.map{it.id}.toSet()
-                    val uniqueNewChars = newChars.filter { it.id !in existingIds }
+                    val currentList = _charactersUi.value.orEmpty().toMutableList()
+                    val existingIds = currentList.map { it.character.id }.toSet()  // ✅ .character.id
+                    val uniqueNewChars = newChars.filter { it.character.id !in existingIds }
                     currentList.addAll(uniqueNewChars)
-                    _characters.value = currentList
+                    _charactersUi.value = currentList  // ✅ Исправлено: charactersUi
                     currentPage++
                 }
             } catch (e: Exception) {
@@ -56,18 +72,30 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun addCharacter(name: String, age: String, imageUrl: String, description: String) {
+    fun addCharacter(
+        name: String,
+        status: String,
+        species: String,
+        gender: String,
+        imageUrl: String
+    ) {
         viewModelScope.launch {
             try {
-                val newChar = com.example.myapplication.model.domain.Character(
+                val newChar = Character(
                     id = 0,
                     name = name,
-                    age = age,
-                    imageUrl = imageUrl,
-                    description = description
+                    status = status,
+                    species = species,
+                    type = "unknown",
+                    gender = gender,
+                    origin = ApiLocation("unknown", ""),
+                    location = ApiLocation("unknown", ""),
+                    image = imageUrl,
+                    episode = emptyList(),
+                    url = "",
+                    created = ""
                 )
-                CharacterRepository.insertCharacter(newChar)
-                // После добавления перезагружаем первую страницу
+                repository.addCharacter(newChar)
                 loadFirstPage()
             } catch (e: Exception) {
                 Log.e("MainViewModel", "Failed to add character", e)
@@ -78,8 +106,7 @@ class MainViewModel : ViewModel() {
     fun deleteCharacter(id: Int) {
         viewModelScope.launch {
             try {
-                CharacterRepository.deleteCharacter(id)
-                // После удаления перезагружаем первую страницу
+                repository.deleteCharacter(id)
                 loadFirstPage()
             } catch (e: Exception) {
                 Log.e("MainViewModel", "Failed to delete character $id", e)

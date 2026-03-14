@@ -6,10 +6,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.model.domain.Character
-import com.example.myapplication.model.repository.CharacterRepository
+//import com.example.myapplication.model.repository.CharacterRepository
+import com.example.myapplication.model.domain.repository.CharacterRepository
 import kotlinx.coroutines.launch
 
-class CharacterDetailViewModel : ViewModel() {
+class CharacterDetailViewModel(
+    private val repository: CharacterRepository) : ViewModel() {
 
     private val _character = MutableLiveData<Character?>()
     val character: LiveData<Character?> = _character
@@ -17,7 +19,7 @@ class CharacterDetailViewModel : ViewModel() {
     fun loadCharacter(id: Int) {
         viewModelScope.launch {
             try {
-                val char = CharacterRepository.getCharacterById(id)
+                val char = repository.getCharacterById(id)
                 _character.value = char
             } catch (e: Exception) {
                 Log.e("DetailViewModel", "Failed to load character $id", e)
