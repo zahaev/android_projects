@@ -15,7 +15,7 @@ fun Character.toFavoriteEntity(): FavoriteCharacterEntity =
         location = location,
         image = image,
         episode = episode,
-        firstEpisodeName = firstEpisodeName,
+        firstEpisodeName = null,  // ← Устанавливаем null
         url = url,
         created = created
     )
@@ -32,7 +32,7 @@ fun FavoriteCharacterEntity.toDomain(): Character =
         location = location,
         image = image,
         episode = episode,
-        firstEpisodeName = firstEpisodeName,
         url = url,
         created = created
+        // ← firstEpisodeName не включаем в domain модель
     )

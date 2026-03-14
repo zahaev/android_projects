@@ -3,8 +3,8 @@ package com.example.myapplication.model.data.mapper
 import com.example.myapplication.model.domain.Character
 import com.example.myapplication.model.data.local.CharacterEntity
 import com.example.myapplication.model.data.local.ApiLocation
-// разделение слоев DTO и Domain
-// конвертация БД (DTO) в json и обратно
+import com.example.myapplication.model.data.remote.CharacterDto
+
 fun CharacterEntity.toDomain(): Character =
     Character(
         id = id,
@@ -17,11 +17,11 @@ fun CharacterEntity.toDomain(): Character =
         location = location,
         image = image,
         episode = episode,
-        firstEpisodeName = firstEpisodeName,
         url = url,
         created = created
     )
-fun mapCharacterDtoToEntity(dto: com.example.myapplication.model.data.remote.CharacterDto): CharacterEntity =
+
+fun mapCharacterDtoToEntity(dto: CharacterDto): CharacterEntity =
     CharacterEntity(
         id = dto.id,
         name = dto.name,
@@ -37,6 +37,7 @@ fun mapCharacterDtoToEntity(dto: com.example.myapplication.model.data.remote.Cha
         url = dto.url,
         created = dto.created
     )
+
 fun Character.toEntity(): CharacterEntity =
     CharacterEntity(
         id = id,
@@ -49,7 +50,7 @@ fun Character.toEntity(): CharacterEntity =
         location = location,
         image = image,
         episode = episode,
-        firstEpisodeName = firstEpisodeName,
+        firstEpisodeName = null,
         url = url,
         created = created
     )
