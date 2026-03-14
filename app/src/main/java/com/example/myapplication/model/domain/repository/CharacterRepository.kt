@@ -1,9 +1,10 @@
 package com.example.myapplication.model.domain.repository
 import com.example.myapplication.model.domain.Character
-import com.example.myapplication.model.domain.CharacterUi
+import com.example.myapplication.view.CharacterUi
 
 //интерфейс
 interface CharacterRepository {
+
     suspend fun getCharactersPage(page: Int, pageSize: Int): List<Character>
 
     suspend fun getCharactersPageUi(page: Int, pageSize: Int): List<CharacterUi>

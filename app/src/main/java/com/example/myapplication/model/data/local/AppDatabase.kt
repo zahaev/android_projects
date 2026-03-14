@@ -6,8 +6,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.example.myapplication.model.data.repository.CharacterDao
-
+import com.example.myapplication.model.data.local.CharacterDao
 @Database(
     entities = [CharacterEntity::class,
         MetadataEntity::class,

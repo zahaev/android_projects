@@ -4,7 +4,7 @@ package com.example.myapplication.model.data.repository
 import android.util.Log
 import com.example.myapplication.model.domain.Character
 import com.example.myapplication.model.domain.repository.CharacterRepository
-import com.example.myapplication.model.domain.CharacterUi
+import com.example.myapplication.view.CharacterUi
 import com.example.myapplication.model.data.local.CharacterLocalDataSource
 import com.example.myapplication.model.data.remote.CharacterRemoteDataSource
 import kotlinx.coroutines.Dispatchers
@@ -13,8 +13,6 @@ import com.example.myapplication.model.data.mapper.toDomain
 import com.example.myapplication.model.data.mapper.mapCharacterDtoToEntity
 import com.example.myapplication.model.data.mapper.toEntity
 import com.example.myapplication.model.data.mapper.toUi
-import com.example.myapplication.model.data.mapper.toDomain as characterEntityToDomain
-import com.example.myapplication.model.data.mapper.toDomain as favoriteEntityToDomain
 import com.example.myapplication.model.data.mapper.toFavoriteEntity
 
 //Спрашивает Local

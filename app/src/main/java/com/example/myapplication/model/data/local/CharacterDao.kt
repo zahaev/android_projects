@@ -1,14 +1,11 @@
-package com.example.myapplication.model.data.repository
+package com.example.myapplication.model.data.local
 // com/example/myapplication/model/local/CharacterDao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.example.myapplication.model.data.local.CharacterEntity
-import com.example.myapplication.model.data.local.FavoriteCharacterEntity
 import androidx.room.Transaction
-import com.example.myapplication.model.data.local.CharacterWithFavorite
 
 @Dao
 interface CharacterDao {
@@ -30,9 +27,6 @@ interface CharacterDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(characters: List<CharacterEntity>)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(character: CharacterEntity)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCharacter(character: CharacterEntity)
