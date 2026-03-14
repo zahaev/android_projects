@@ -111,7 +111,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupObservers() {
-        // ✅ charactersUi вместо characters
         viewModel.charactersUi.observe(this) { charactersUi ->
             adapter.updateCharacters(charactersUi)
         }

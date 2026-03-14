@@ -11,9 +11,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.myapplication.R
-import com.example.myapplication.model.repository.CharacterRepository
 import com.example.myapplication.viewmodel.CharacterDetailViewModel
 import kotlinx.coroutines.launch
+import com.example.myapplication.viewmodel.CharacterDetailViewModelFactory
 
 class CharacterDetailActivity : AppCompatActivity() {
 
@@ -23,9 +23,11 @@ class CharacterDetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_character_detail)
 
-        CharacterRepository.initialize(applicationContext)
 
-        viewModel = ViewModelProvider(this)[CharacterDetailViewModel::class.java]
+        viewModel = ViewModelProvider(
+            this,
+                CharacterDetailViewModelFactory(applicationContext)
+        )[CharacterDetailViewModel::class.java]
 
         findViewById<ImageView>(R.id.btnGoToMain).setOnClickListener {
             startActivity(Intent(this, MainActivity::class.java))
@@ -42,11 +44,13 @@ class CharacterDetailActivity : AppCompatActivity() {
         viewModel.character.observe(this) { character ->
             if (character != null) {
                 findViewById<TextView>(R.id.textViewDetailName).text = character.name
-                findViewById<TextView>(R.id.textViewDetailAge).text = "Age: ${character.age}"
-                findViewById<TextView>(R.id.textViewDetailDescription).text = character.description
+                findViewById<TextView>(R.id.textViewDetailAge).text =
+                    "${character.status} • ${character.species}"
+                findViewById<TextView>(R.id.textViewDetailDescription).text =
+                    "${character.gender} • ${character.type}"
 
                 Glide.with(this)
-                    .load(character.imageUrl.trim().takeIf { it.isNotEmpty() })
+                    .load(character.image.trim().takeIf { it.isNotEmpty() })
                     .placeholder(R.drawable.placeholder_avatar) // ← должен существовать
                     .error(R.drawable.error_avatar)           // ← должен существовать
                     .into(findViewById(R.id.imageViewDetail))
