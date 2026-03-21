@@ -56,3 +56,26 @@ Android-приложение для просмотра и управления �
 ```bash
 git clone https://github.com/yourusername/rick-and-morty-explorer.git
 cd rick-and-morty-explorer
+
+app/
+├── src/
+│   ├── main/
+│   │   ├── java/com/example/myapplication/
+│   │   │   ├── di/                    # Внедрение зависимостей (Service Locator)
+│   │   │   ├── model/
+│   │   │   │   ├── data/              # Слой данных
+│   │   │   │   │   ├── local/         # Room entities, DAOs, converters
+│   │   │   │   │   ├── mapper/        # Мапперы для преобразования данных
+│   │   │   │   │   ├── remote/        # Retrofit API, DTOs
+│   │   │   │   │   └── repository/    # Реализация репозитория
+│   │   │   │   └── domain/            # Доменный слой
+│   │   │   │       ├── repository/    # Интерфейсы репозиториев
+│   │   │   │       └── Character.kt   # Доменная модель
+│   │   │   ├── view/                  # Слой представления
+│   │   │   │   ├── MainActivity.kt
+│   │   │   │   ├── CharacterDetailActivity.kt
+│   │   │   │   ├── CharacterAdapter.kt
+│   │   │   │   └── CharacterUi.kt
+│   │   │   └── viewmodel/             # ViewModels и фабрики
+│   │   └── res/                       # Ресурсы (layouts, drawables, и т.д.)
+│   └── test/                          # Юнит-тесты
