@@ -17,7 +17,3 @@ data class CharacterDto(
     val created: String
 )
 
-data class LocationDto(
-    val name: String,
-    val url: String
-)

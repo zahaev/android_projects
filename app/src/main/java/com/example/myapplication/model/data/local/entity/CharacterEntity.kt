@@ -18,5 +18,6 @@ data class CharacterEntity(
     val episode: List<String>,        // через Moshi-конвертер
     val firstEpisodeName: String?,    // nullable
     val url: String,
-    val created: String
+    val created: String,
+    val isFavorite: Boolean = false
 )

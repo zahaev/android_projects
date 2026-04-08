@@ -12,14 +12,13 @@ class CharacterLocalDataSource(
     suspend fun getCharacterById(id: Int): CharacterEntity? {
         return dao.getCharacterById(id)
     }
-    suspend fun getAllFavorites() = dao.getAllFavorites()
-    suspend fun getCharactersPageWithFavorite(offset: Int, limit: Int): List<CharacterWithFavorite> {
-        return dao.getCharactersPageWithFavorite(offset, limit)
-    }
-    suspend fun isFavorite(id: Int) = dao.isFavorite(id)
-    suspend fun insertFavorite(entity: FavoriteCharacterEntity) = dao.insertFavorite(entity)
-    suspend fun deleteFavorite(id: Int) = dao.deleteFavorite(id)
+    suspend fun getFavorites() = dao.getFavorites()
 
+    suspend fun isFavorite(id: Int) = dao.isFavorite(id) ?:false
+
+
+    suspend fun updateFavoriteStatus(id:Int,isFavorite:Boolean)=
+        dao.updateFavoriteStatus(id, isFavorite)
     suspend fun insert(character: CharacterEntity) {
         dao.insertCharacter(character)
     }

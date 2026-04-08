@@ -18,7 +18,8 @@ fun CharacterEntity.toDomain(): Character =
         image = image,
         episode = episode,
         url = url,
-        created = created
+        created = created,
+        isFavorite = isFavorite
     )
 
 fun mapCharacterDtoToEntity(dto: CharacterDto): CharacterEntity =
@@ -35,7 +36,8 @@ fun mapCharacterDtoToEntity(dto: CharacterDto): CharacterEntity =
         episode = dto.episode,
         firstEpisodeName = null,
         url = dto.url,
-        created = dto.created
+        created = dto.created,
+        isFavorite = false
     )
 
 fun Character.toEntity(): CharacterEntity =
@@ -52,5 +54,6 @@ fun Character.toEntity(): CharacterEntity =
         episode = episode,
         firstEpisodeName = null,
         url = url,
-        created = created
+        created = created,
+        isFavorite = isFavorite
     )

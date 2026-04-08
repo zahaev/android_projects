@@ -5,18 +5,17 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.myapplication.model.domain.Character
+import com.example.myapplication.model.domain.model.Character
 import com.example.myapplication.model.data.local.ApiLocation
 import com.example.myapplication.model.domain.repository.CharacterRepository
-import com.example.myapplication.view.CharacterUi
 import kotlinx.coroutines.launch
 
 class MainViewModel(
     private val repository: CharacterRepository
 ) : ViewModel() {
 
-    private val _charactersUi = MutableLiveData<List<CharacterUi>>()
-    val charactersUi: LiveData<List<CharacterUi>> = _charactersUi
+    private val _characters = MutableLiveData<List<Character>>()
+    val characters: LiveData<List<Character>> = _characters
 
     private var currentPage = 0
     private var isLastPage = false
@@ -26,7 +25,7 @@ class MainViewModel(
         currentPage = 0
         isLastPage = false
         isLoading = false
-        _charactersUi.value = emptyList()  // ✅ Исправлено: charactersUi
+        _characters.value = emptyList()
         loadNextPage()
     }
 
@@ -34,9 +33,9 @@ class MainViewModel(
         return repository.isFavorite(id)
     }
 
-    fun toggleFavorite(character: Character) {
+    fun toggleFavorite(characterId: Int) {
         viewModelScope.launch {
-            repository.toggleFavorite(character)
+            repository.toggleFavorite(characterId)
             // Обновляем список после изменения избранного
             loadFirstPage()
         }
@@ -50,17 +49,17 @@ class MainViewModel(
         isLoading = true
         viewModelScope.launch {
             try {
-                // ✅ Исправлено: используем getCharactersPageUi (возвращает CharacterUi)
-                val newChars = repository.getCharactersPageUi(currentPage, 5)
+                //  используем getCharactersPage (возвращает Character)
+                val newChars = repository.getCharactersPage(currentPage, 5)
 
                 if (newChars.isEmpty()) {
                     isLastPage = true
                 } else {
-                    val currentList = _charactersUi.value.orEmpty().toMutableList()
-                    val existingIds = currentList.map { it.character.id }.toSet()  // ✅ .character.id
-                    val uniqueNewChars = newChars.filter { it.character.id !in existingIds }
+                    val currentList = _characters.value.orEmpty().toMutableList()
+                    val existingIds = currentList.map { it.id }.toSet()  //characterId
+                    val uniqueNewChars = newChars.filter { it.id !in existingIds }//characterId
                     currentList.addAll(uniqueNewChars)
-                    _charactersUi.value = currentList  // ✅ Исправлено: charactersUi
+                    _characters.value = currentList
                     currentPage++
                 }
             } catch (e: Exception) {
@@ -77,7 +76,7 @@ class MainViewModel(
         status: String,
         species: String,
         gender: String,
-        imageUrl: String
+        imageUrl: String,
     ) {
         viewModelScope.launch {
             try {
@@ -93,7 +92,8 @@ class MainViewModel(
                     image = imageUrl,
                     episode = emptyList(),
                     url = "",
-                    created = ""
+                    created = "",
+                    isFavorite = false
                 )
                 repository.addCharacter(newChar)
                 loadFirstPage()

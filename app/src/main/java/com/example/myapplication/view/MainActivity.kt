@@ -80,7 +80,7 @@ class MainActivity : AppCompatActivity() {
                     .setTitle(character.name)
                     .setMessage(if (isFavorite) "Remove from favorites?" else "Add to favorites?")
                     .setPositiveButton(if (isFavorite) "Remove" else "Add to Favorites") { _, _ ->
-                        viewModel.toggleFavorite(character)
+                        viewModel.toggleFavorite(character.id)
                     }
                     .setNeutralButton("Delete") { _, _ ->
                         viewModel.deleteCharacter(character.id)
@@ -111,8 +111,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupObservers() {
-        viewModel.charactersUi.observe(this) { charactersUi ->
-            adapter.updateCharacters(charactersUi)
+        viewModel.characters.observe(this) { characters ->
+            adapter.updateCharacters(characters)
         }
     }
 

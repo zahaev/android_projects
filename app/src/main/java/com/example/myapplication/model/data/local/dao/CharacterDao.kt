@@ -13,17 +13,17 @@ interface CharacterDao {
     @Query("SELECT * FROM characters ORDER BY id ASC LIMIT :limit OFFSET :offset")
     suspend fun getCharactersPage(offset: Int, limit: Int): List<CharacterEntity>
 
-    @Query("SELECT * FROM characters ORDER BY id ASC")
-    suspend fun getAllCharacters(): List<CharacterEntity>
-
     @Query("SELECT * FROM characters WHERE id = :id LIMIT 1")
     suspend fun getCharacterById(id: Int): CharacterEntity?
 
-    @Query("SELECT * FROM favorites ORDER BY id ASC")
-    suspend fun getAllFavorites(): List<FavoriteCharacterEntity>
+    @Query("SELECT * FROM characters WHERE isFavorite == 1 ORDER BY id ASC")
+    suspend fun getFavorites(): List<CharacterEntity>
 
-    @Query("SELECT EXISTS(SELECT 1 FROM favorites WHERE id = :id)")
-    suspend fun isFavorite(id: Int): Boolean
+    @Query("SELECT isFavorite FROM characters WHERE id = :id LIMIT 1")
+    suspend fun isFavorite(id: Int): Boolean?
+
+    @Query("UPDATE characters SET isFavorite = :isFavorite WHERE id = :id")
+    suspend fun updateFavoriteStatus(id: Int, isFavorite: Boolean)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(characters: List<CharacterEntity>)
@@ -31,26 +31,6 @@ interface CharacterDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCharacter(character: CharacterEntity)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertFavorite(character:FavoriteCharacterEntity)
-
     @Query("DELETE FROM characters WHERE id = :id")
     suspend fun deleteCharacter(id: Int)
-
-    @Query("DELETE FROM characters")
-    suspend fun deleteAll()
-    @Query("DELETE FROM favorites WHERE id =:id")
-
-    suspend fun  deleteFavorite(id:Int)
-    @Transaction
-    @Query("""
-    SELECT * FROM characters
-    ORDER BY id ASC
-    LIMIT :limit OFFSET :offset
-""")
-
-    suspend fun getCharactersPageWithFavorite(
-        offset: Int,
-        limit: Int
-    ): List<CharacterWithFavorite>
 }

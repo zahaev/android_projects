@@ -9,14 +9,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import androidx.recyclerview.widget.DiffUtil
 import com.example.myapplication.R
-import com.example.myapplication.model.domain.Character
+import com.example.myapplication.model.domain.model.Character
 
 class CharacterAdapter(
-    characters: List<CharacterUi>,
+    characters: List<Character>,
     private val onItemClick: (Character) -> Unit
 ) : RecyclerView.Adapter<CharacterAdapter.ViewHolder>() {
 
-    private var charactersList: MutableList<CharacterUi> = characters.toMutableList()
+    private var charactersList: MutableList<Character> = characters.toMutableList()
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val imageView: ImageView = view.findViewById(R.id.imageViewAvatar)
@@ -25,19 +25,20 @@ class CharacterAdapter(
         val favoriteImageView: ImageView = view.findViewById(R.id.imageViewFavorite)
     }
 
-    fun updateCharacters(newCharacters: List<CharacterUi>) {
+    fun updateCharacters(newCharacters: List<Character>) {
         val diffCallback = object : DiffUtil.Callback() {
             override fun getOldListSize() = charactersList.size
             override fun getNewListSize() = newCharacters.size
 
             override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                // Исправлено: доступ через .character.id
-                return charactersList[oldItemPosition].character.id ==
-                        newCharacters[newItemPosition].character.id
+                // Исправлено: доступ через .id
+                return charactersList[oldItemPosition].id ==
+                        newCharacters[newItemPosition].id
             }
 
             override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                return charactersList[oldItemPosition] == newCharacters[newItemPosition]
+                return charactersList[oldItemPosition] ==
+                        newCharacters[newItemPosition]
             }
         }
         val diffResult = DiffUtil.calculateDiff(diffCallback)
@@ -59,8 +60,8 @@ class CharacterAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val characterUi = charactersList[position]
-        val character = characterUi.character  // ← Получаем доменную модель
+        val character = charactersList[position]
+        //val character = characterUi.character  // ← Получаем доменную модель
 
         holder.nameTextView.text = character.name
         holder.ageTextView.text = "${character.status} • ${character.species}"
@@ -68,7 +69,7 @@ class CharacterAdapter(
         // Показываем/скрываем звёздочку
         // Исправлено: убираем лишнюю проверку типа
         holder.favoriteImageView.visibility =
-            if (characterUi.isFavorite) View.VISIBLE else View.GONE
+            if (character.isFavorite) View.VISIBLE else View.GONE
 
         // Загрузка изображения
         val url = character.image.trim().takeIf { it.isNotEmpty() }

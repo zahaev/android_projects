@@ -12,8 +12,7 @@ import kotlinx.coroutines.withContext
 import com.example.myapplication.model.data.mapper.toDomain
 import com.example.myapplication.model.data.mapper.mapCharacterDtoToEntity
 import com.example.myapplication.model.data.mapper.toEntity
-import com.example.myapplication.model.data.mapper.toUi
-import com.example.myapplication.model.data.mapper.toFavoriteEntity
+import com.example.myapplication.model.data.remote.dto.CharacterDto
 
 //Спрашивает Local
 //Если пусто → идёт в Remote
@@ -41,54 +40,27 @@ class CharacterRepositoryImpl(
                 Log.e("Repo", "Network load failed: ${e.message}", e)
                 // можно залогировать позже
             }
-
-       
         }
        localDataSource.getCharactersPage(offset, pageSize)
            .map { it.toDomain() }
-
-
-
     }
     override suspend fun getFavorites(): List<Character> = withContext(Dispatchers.IO) {
-        localDataSource.getAllFavorites().map { it.toDomain() }
+        localDataSource.getFavorites().map { it.toDomain() }
     }
 
     override suspend fun isFavorite(id: Int): Boolean = withContext(Dispatchers.IO) {
         localDataSource.isFavorite(id)
     }
 
-    override suspend fun toggleFavorite(character: Character) = withContext(Dispatchers.IO) {
-        val exists = localDataSource.isFavorite(character.id)
-        if (exists) {
-            localDataSource.deleteFavorite(character.id)
-        } else {
-            localDataSource.insertFavorite(character.toFavoriteEntity())
-        }
+    override suspend fun toggleFavorite(characterId: Int) = withContext(Dispatchers.IO) {
+        val current = localDataSource.isFavorite(characterId)
+            localDataSource.updateFavoriteStatus(characterId,!current)
     }
+
 
     override suspend fun getCharacterById(id: Int): Character? =
         withContext(Dispatchers.IO) {
             localDataSource.getCharacterById(id)?.toDomain()
-        }
-    override suspend fun getCharactersPageUi(page: Int, pageSize: Int): List<CharacterUi> =
-        withContext(Dispatchers.IO) {
-            val offset = page * pageSize
-
-            val local = localDataSource.getCharactersPageWithFavorite(offset, pageSize)
-
-            if (local.isEmpty()) {
-                try {
-                    val remote = remoteDataSource.getCharacters(page + 1)
-                    val entities = remote.map { mapCharacterDtoToEntity(it) }
-                    localDataSource.insertAll(entities)
-                } catch (e: Exception) {
-                    Log.e("Repo", "Network load failed: ${e.message}", e)
-                }
-            }
-
-            localDataSource.getCharactersPageWithFavorite(offset, pageSize)
-                .map { it.toUi() }
         }
 
     override suspend fun addCharacter(character: Character) =
