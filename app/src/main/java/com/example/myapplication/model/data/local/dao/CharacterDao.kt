@@ -1,4 +1,4 @@
-package com.example.myapplication.model.data.local
+package com.example.myapplication.model.data.local.dao
 // com/example/myapplication/model/local/CharacterDao
 
 import androidx.room.Dao
@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import com.example.myapplication.model.data.local.entity.CharacterEntity
 
 @Dao
 interface CharacterDao {

@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.model.domain.model.Character
+
 import com.example.myapplication.model.data.local.ApiLocation
 import com.example.myapplication.model.domain.repository.CharacterRepository
 import kotlinx.coroutines.launch

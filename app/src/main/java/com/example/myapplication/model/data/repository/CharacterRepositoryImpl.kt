@@ -2,17 +2,19 @@
 package com.example.myapplication.model.data.repository
 
 import android.util.Log
-import com.example.myapplication.model.domain.Character
-import com.example.myapplication.model.domain.repository.CharacterRepository
-import com.example.myapplication.view.CharacterUi
+
 import com.example.myapplication.model.data.local.CharacterLocalDataSource
 import com.example.myapplication.model.data.remote.CharacterRemoteDataSource
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import com.example.myapplication.model.data.mapper.toDomain
 import com.example.myapplication.model.data.mapper.mapCharacterDtoToEntity
 import com.example.myapplication.model.data.mapper.toEntity
-import com.example.myapplication.model.data.remote.dto.CharacterDto
+//import com.example.myapplication.model.data.remote.dto.CharacterDto
+import com.example.myapplication.model.domain.model.Character
+
+import com.example.myapplication.model.domain.repository.CharacterRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+
 
 //Спрашивает Local
 //Если пусто → идёт в Remote

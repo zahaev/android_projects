@@ -23,6 +23,7 @@ import com.example.myapplication.model.domain.repository.CharacterRepository
 import com.example.myapplication.viewmodel.MainViewModelFactory
 import com.example.myapplication.viewmodel.MainViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.example.myapplication.model.domain.model.Character
 
 class MainActivity : AppCompatActivity() {
 

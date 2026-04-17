@@ -1,4 +1,6 @@
 package com.example.myapplication.model.domain.repository
+
+//import com.example.myapplication.model.domain.model.Character
 import com.example.myapplication.model.domain.model.Character
 
 //интерфейс

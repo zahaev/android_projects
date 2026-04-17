@@ -1,7 +1,7 @@
 package com.example.myapplication.model.data.mapper
 
-import com.example.myapplication.model.domain.Character
-import com.example.myapplication.model.data.local.CharacterEntity
+import com.example.myapplication.model.domain.model.Character
+import com.example.myapplication.model.data.local.entity.CharacterEntity
 import com.example.myapplication.model.data.local.ApiLocation
 import com.example.myapplication.model.data.remote.CharacterDto
 

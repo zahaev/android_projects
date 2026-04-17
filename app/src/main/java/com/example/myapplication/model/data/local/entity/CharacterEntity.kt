@@ -1,8 +1,9 @@
 // com/example/myapplication/model/local/CharacterEntity.kt
-package com.example.myapplication.model.data.local
+package com.example.myapplication.model.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.myapplication.model.data.local.ApiLocation
 //Это модель базы данных Связана с Room.
 @Entity(tableName = "characters")
 data class CharacterEntity(

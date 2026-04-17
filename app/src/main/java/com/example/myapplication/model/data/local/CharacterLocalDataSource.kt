@@ -1,5 +1,7 @@
 package com.example.myapplication.model.data.local
-import com.example.myapplication.model.data.local.CharacterDao
+import com.example.myapplication.model.data.local.dao.CharacterDao
+import com.example.myapplication.model.data.local.entity.CharacterEntity
+
 //возвращает Entity
 //вызывает DAO
 class CharacterLocalDataSource(

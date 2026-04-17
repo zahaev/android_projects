@@ -1,5 +1,5 @@
 package com.example.myapplication.model.data.remote
-import com.squareup.moshi.Json
+
 //модель сети Связана с JSON
 //формат json для работы с API
 data class CharacterDto(
