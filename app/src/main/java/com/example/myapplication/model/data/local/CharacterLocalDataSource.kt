@@ -19,6 +19,7 @@ class CharacterLocalDataSource(
 
     suspend fun updateFavoriteStatus(id:Int,isFavorite:Boolean)=
         dao.updateFavoriteStatus(id, isFavorite)
+
     suspend fun insert(character: CharacterEntity) {
         dao.insertCharacter(character)
     }

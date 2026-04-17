@@ -6,12 +6,12 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.example.myapplication.model.data.local.CharacterDao
+import com.example.myapplication.model.data.local.dao.CharacterDao
+import com.example.myapplication.model.data.local.entity.CharacterEntity
 @Database(
     entities = [CharacterEntity::class,
-        MetadataEntity::class,
-        FavoriteCharacterEntity::class],
-    version = 3, exportSchema = false
+        MetadataEntity::class],
+    version = 4, exportSchema = false
 )
 @TypeConverters(RoomConverters::class)
 abstract class AppDatabase : RoomDatabase() {

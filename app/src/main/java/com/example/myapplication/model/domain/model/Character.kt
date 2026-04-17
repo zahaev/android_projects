@@ -1,4 +1,5 @@
-package com.example.myapplication.model.domain
+package com.example.myapplication.model.domain.model
+
 
 import com.example.myapplication.model.data.local.ApiLocation
 
