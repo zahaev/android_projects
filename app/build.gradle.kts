@@ -16,8 +16,17 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
+        // Чтение BASE_URL из local.properties с фоллбэком на дефолт
+        val baseUrl = project.providers.gradleProperty("rickandmorty.base_url")
+            .orElse("https://rickandmortyapi.com/api/")
+            .get()
+
+        buildConfigField("String", "BASE_URL", "\"$baseUrl\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+    buildFeatures {
+        buildConfig = true
     }
 
     buildTypes {
