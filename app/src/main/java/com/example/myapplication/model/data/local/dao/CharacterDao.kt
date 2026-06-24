@@ -17,7 +17,7 @@ interface CharacterDao {
     @Query("SELECT * FROM characters WHERE id = :id LIMIT 1")
     suspend fun getCharacterById(id: Int): CharacterEntity?
 
-    @Query("SELECT * FROM characters WHERE isFavorite == 1 ORDER BY id ASC")
+    @Query("SELECT * FROM characters WHERE isFavorite = 1 ORDER BY id ASC")
     suspend fun getFavorites(): List<CharacterEntity>
 
     @Query("SELECT isFavorite FROM characters WHERE id = :id LIMIT 1")
