@@ -30,10 +30,12 @@ class MainViewModel(
         loadNextPage()
     }
 
-    suspend fun isFavoriteSync(id: Int): Boolean {
-        return repository.isFavorite(id)
+    fun isFavoriteSync(id: Int, onResult: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val result = repository.isFavorite(id)
+            onResult(result)
+        }
     }
-
     fun toggleFavorite(characterId: Int) {
         viewModelScope.launch {
             repository.toggleFavorite(characterId)
@@ -108,7 +110,9 @@ class MainViewModel(
         viewModelScope.launch {
             try {
                 repository.deleteCharacter(id)
-                loadFirstPage()
+                val currentList = _characters.value.orEmpty().toMutableList()
+                currentList.removeAll { it.id == id }
+                _characters.value = currentList
             } catch (e: Exception) {
                 Log.e("MainViewModel", "Failed to delete character $id", e)
             }
