@@ -1,4 +1,7 @@
 <resources>
-    <string name="app_name">My Application</string>
+    <string name="app_name">Rick and Morty Characters</string>
     <string name="age_format">Age: %s</string>
+    <string name="app_description">
+        Приложение для просмотра списка персонажей с
+        возножностью добавления героев в избранное, пагинацией</string>
 </resources>
