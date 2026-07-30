@@ -24,9 +24,10 @@ android {
         applicationId = "com.example.myapplication"
         minSdk = 26
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = providers.gradleProperty("APP_VERSION_CODE").get().toInt()
+        versionName = providers.gradleProperty("APP_VERSION_NAME").get()
         buildConfigField("String", "BASE_URL", "\"$baseUrl\"")
+
     }
 
     buildFeatures {
