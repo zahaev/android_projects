@@ -18,34 +18,38 @@ class MainViewModel(
     private val _characters = MutableLiveData<List<Character>>()
     val characters: LiveData<List<Character>> = _characters
 
-    private var currentPage = 0
-    private var isLastPage = false
+    private var currentPage = 1
+    private var isEndReached = false
     private var isLoading = false
 
+
     fun loadFirstPage() {
-        currentPage = 0
-        isLastPage = false
+        currentPage = 1
+        isEndReached = false
         isLoading = false
-        _characters.value = emptyList()
+        _characters.value = emptyList() // Очистка UI перед новой загрузкой
         loadNextPage()
     }
 
-    fun isFavoriteSync(id: Int, onResult: (Boolean) -> Unit) {
-        viewModelScope.launch {
-            val result = repository.isFavorite(id)
-            onResult(result)
-        }
-    }
     fun toggleFavorite(characterId: Int) {
         viewModelScope.launch {
-            repository.toggleFavorite(characterId)
-            // Обновляем список после изменения избранного
-            loadFirstPage()
+            try {
+                repository.toggleFavorite(characterId)
+                // Обновляем список чтобы изменить иконку избранного
+                val currentList = _characters.value.orEmpty().map {char ->
+                    if(char.id==characterId) char.copy(isFavorite = !char.isFavorite)
+                    else char
+                }
+                _characters.value=currentList
+            }
+            catch (e: Exception){
+                Log.e("MaintViewModel","Failed to toggle favorite",e)
+            }
         }
     }
 
     fun loadNextPage(onComplete: () -> Unit = {}) {
-        if (isLoading || isLastPage) {
+        if (isLoading || isEndReached) {
             onComplete()
             return
         }
@@ -53,17 +57,18 @@ class MainViewModel(
         viewModelScope.launch {
             try {
                 //  используем getCharactersPage (возвращает Character)
-                val newChars = repository.getCharactersPage(currentPage, 5)
+                val newChars = repository.getCharactersPage(currentPage, 20)
 
                 if (newChars.isEmpty()) {
-                    isLastPage = true
+                    isEndReached = true
                 } else {
                     val currentList = _characters.value.orEmpty().toMutableList()
                     val existingIds = currentList.map { it.id }.toSet()  //characterId
+                    // Фильтруем дубликаты
                     val uniqueNewChars = newChars.filter { it.id !in existingIds }//characterId
                     currentList.addAll(uniqueNewChars)
                     _characters.value = currentList
-                    currentPage++
+                    currentPage++// Переход к следующей странице
                 }
             } catch (e: Exception) {
                 Log.e("MainViewModel", "Failed to load page", e)
@@ -83,8 +88,11 @@ class MainViewModel(
     ) {
         viewModelScope.launch {
             try {
+                // Генерируем отрицательный ID, чтобы избежать конфликтов с ID из API (которые > 0)
+                val localId = -(System.currentTimeMillis() % Int.MAX_VALUE).toInt()
+
                 val newChar = Character(
-                    id = 0,
+                    id = localId,
                     name = name,
                     status = status,
                     species = species,
