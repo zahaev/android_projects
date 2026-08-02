@@ -67,13 +67,4 @@ class CharacterRepositoryImpl(
             localDataSource.getCharacterById(id)?.toDomain()
         }
 
-    override suspend fun addCharacter(character: Character) =
-        withContext(Dispatchers.IO) {
-            localDataSource.insert(character.toEntity())
-        }
-
-    override suspend fun deleteCharacter(id: Int) =
-        withContext(Dispatchers.IO) {
-            localDataSource.delete(id)
-        }
 }

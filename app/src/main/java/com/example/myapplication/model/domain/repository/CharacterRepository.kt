@@ -15,9 +15,4 @@ interface CharacterRepository {
     suspend fun toggleFavorite(characterId: Int)
 
     suspend fun isFavorite(id: Int): Boolean
-
-    suspend fun addCharacter(character: Character)
-
-    suspend fun deleteCharacter(id: Int)
-
 }

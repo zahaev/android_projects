@@ -32,6 +32,4 @@ interface CharacterDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCharacter(character: CharacterEntity)
 
-    @Query("DELETE FROM characters WHERE id = :id")
-    suspend fun deleteCharacter(id: Int)
 }

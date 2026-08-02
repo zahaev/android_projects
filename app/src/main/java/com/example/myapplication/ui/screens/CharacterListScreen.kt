@@ -119,15 +119,6 @@ fun CharacterListScreen(
             Footer()
         }
     }
-    if(showAddDialog){
-        AddCharacterDialog(
-            onDismiss={showAddDialog=false},
-            onConfirm={name,status,species,gender,imageUrl ->
-                viewModel.addCharacter(name,status,species,gender,imageUrl)
-                showAddDialog=false
-            }
-        )
-    }
     // Меню долгого нажатия
     selectedCharacter?.let { character ->
         CharacterActionDialog(
@@ -137,10 +128,6 @@ fun CharacterListScreen(
                 viewModel.toggleFavorite(character.id)
                 selectedCharacter = null
             },
-            onDelete = {
-                viewModel.deleteCharacter(character.id)
-                selectedCharacter = null
-            }
         )
     }
 }
