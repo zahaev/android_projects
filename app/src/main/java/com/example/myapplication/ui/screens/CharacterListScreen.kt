@@ -33,8 +33,13 @@ import com.example.myapplication.viewmodel.MainViewModelFactory
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 
-import android.util.Log
+import androidx.compose.material.icons.filled.Refresh
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
+
+
+import android.util.Log
+import androidx.compose.ui.tooling.preview.Preview
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,25 +49,28 @@ fun CharacterListScreen(
         factory = MainViewModelFactory(LocalContext.current.applicationContext)
     )
 )   {
-    val characters by viewModel.characters.observeAsState(emptyList())
+    // Сбор StateFlow в Compose State
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val listState = rememberLazyListState()//сохраняет состояние между перерисовками
 
     //Пагинация
-    val shouldLoadMore by remember{
-        derivedStateOf{// вычисляемое состояние
-            val lastVisibleItem = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index?:0
-            lastVisibleItem >= characters.size - 3
+    LaunchedEffect(uiState.isLoading, uiState.endReached) {// вычисляемое состояние
+        val lastVisibleItem = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index?:0
+        val totalItemsCount = listState.layoutInfo.totalItemsCount
+
+        if(totalItemsCount>0 &&lastVisibleItem>= totalItemsCount-3){
+            if(!uiState.isLoading&& !uiState.endReached){
+                viewModel.loadNextPage()
+            }
         }
     }
-    LaunchedEffect(shouldLoadMore) {//запускает корутину при изменении shouldLoadMore
-        if(shouldLoadMore){
-            viewModel.loadNextPage()
-        }
-    }
+    // Первая загрузка
     LaunchedEffect(Unit) {//выполняется один раз при создании экрана
-        viewModel.loadFirstPage()
+        if (uiState.characters.isEmpty() && !uiState.isLoading) {
+            viewModel.loadFirstPage()
+        }
     }
-    var showAddDialog by remember {mutableStateOf/*изеняемое состояние*/(false)}
+    var showAddDialog by remember {mutableStateOf/*изменяемое состояние*/(false)}
     var selectedCharacter by remember {mutableStateOf<Character?>(null)}
 
     Scaffold(
@@ -75,48 +83,63 @@ fun CharacterListScreen(
 
             }
         }
-    ){padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)//применить отступы от Scaffold
-                .background(MaterialTheme.colorScheme.background)
-
-        ){
-            Header()
-            //список персонажей
-            LazyColumn(
-                state=listState,
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ){
-                items(characters,key= {it.id}){character ->//эл-ы массива characters
-                    CharacterCard(//комп-т карточки перс-а
-                        character = character,
-                        onClick = {onCharacterClick(character.id)},
-                        onLongClick={selectedCharacter = character}
-                    )
+    ){ padding ->
+        Box(modifier = Modifier.fillMaxSize().padding(padding)) {
+            when {
+                uiState.isLoading && uiState.characters.isEmpty() -> {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
-                // Индикатор загрузки
-                item{
-                    if(characters.isNotEmpty()){
-                        Box(
-                            modifier=Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            contentAlignment= Alignment.Center
-                        ){
-                            CircularProgressIndicator(color=MaterialTheme.colorScheme.primary)
-                        //индикатор загрузки
+                uiState.errorMessage != null && uiState.characters.isEmpty() -> {
+                    Column(
+                        modifier = Modifier.align(Alignment.Center).padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(text = uiState.errorMessage!!, color = MaterialTheme.colorScheme.error)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Button(onClick = { viewModel.loadFirstPage() }) {
+                            Icon(Icons.Default.Refresh, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Повторить")
+                        }
+                    }
+                }
+                else -> {
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {item{Header()}
+                        items(uiState.characters, key = { it.id }) { character ->
+                            CharacterCard(
+                                character = character,
+                                onClick = { onCharacterClick(character.id) },
+                                onLongClick = { selectedCharacter = character }
+                            )
                         }
 
+                        // Индикатор загрузки внизу списка при пагинации
+                        if (uiState.isLoading) {
+                            item {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.fillMaxWidth().padding(16.dp).wrapContentWidth(Alignment.CenterHorizontally)
+                                )
+                            }
+                        }
+
+                        // Сообщение о конце списка
+                        if (uiState.endReached && uiState.characters.isNotEmpty()) {
+                            item {
+                                Text(
+                                    text = "Достигнут конец списка",
+                                    modifier = Modifier.fillMaxWidth().padding(16.dp).wrapContentWidth(Alignment.CenterHorizontally),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
                     }
                 }
             }
-            Footer()
         }
     }
     // Меню долгого нажатия

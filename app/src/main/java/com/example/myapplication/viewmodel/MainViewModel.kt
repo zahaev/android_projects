@@ -6,7 +6,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.model.domain.model.Character
-
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import com.example.myapplication.model.data.local.ApiLocation
 import com.example.myapplication.model.domain.repository.CharacterRepository
 import kotlinx.coroutines.launch
@@ -15,19 +18,20 @@ class MainViewModel(
     private val repository: CharacterRepository
 ) : ViewModel() {
 
-    private val _characters = MutableLiveData<List<Character>>()
-    val characters: LiveData<List<Character>> = _characters
+    private val _uiState = MutableStateFlow(CharactersUiState())
+    val uiState: StateFlow<CharactersUiState> = _uiState.asStateFlow()
 
     private var currentPage = 1
-    private var isEndReached = false
-    private var isLoading = false
-
 
     fun loadFirstPage() {
         currentPage = 1
-        isEndReached = false
-        isLoading = false
-        _characters.value = emptyList() // Очистка UI перед новой загрузкой
+        _uiState.update {it.copy(
+            characters = emptyList(), // Очистка UI перед новой загрузкой
+            isLoading = true,
+            errorMessage = null,
+            endReached = false
+            )
+        }
         loadNextPage()
     }
 
@@ -35,47 +39,54 @@ class MainViewModel(
         viewModelScope.launch {
             try {
                 repository.toggleFavorite(characterId)
-                // Обновляем список чтобы изменить иконку избранного
-                val currentList = _characters.value.orEmpty().map {char ->
-                    if(char.id==characterId) char.copy(isFavorite = !char.isFavorite)
-                    else char
+                // Обновляем список чтобы изменить иконку избранного без перезагрузки всей страницы
+                _uiState.update { currentState->
+                    val updatedList = currentState.characters.map{char ->
+                        if(char.id==characterId) char.copy(isFavorite = !char.isFavorite)
+                        else char
+                    }
+                    currentState.copy(characters = updatedList)
                 }
-                _characters.value=currentList
             }
             catch (e: Exception){
-                Log.e("MaintViewModel","Failed to toggle favorite",e)
+                Log.e("MainViewModel","Failed to toggle favorite",e)
             }
         }
     }
 
-    fun loadNextPage(onComplete: () -> Unit = {}) {
-        if (isLoading || isEndReached) {
-            onComplete()
+    fun loadNextPage() {
+        val currentState = _uiState.value
+        if (currentState.isLoading || currentState.endReached){
             return
         }
-        isLoading = true
+            _uiState.update { it.copy(isLoading = true, errorMessage = null)
+            }
         viewModelScope.launch {
             try {
                 //  используем getCharactersPage (возвращает Character)
                 val newChars = repository.getCharactersPage(currentPage, 20)
 
                 if (newChars.isEmpty()) {
-                    isEndReached = true
+                  _uiState.update { it.copy(isLoading = false, endReached = true) }
                 } else {
-                    val currentList = _characters.value.orEmpty().toMutableList()
-                    val existingIds = currentList.map { it.id }.toSet()  //characterId
+                    val existingIds = currentState.characters.map { it.id }.toSet()  //characterId
                     // Фильтруем дубликаты
                     val uniqueNewChars = newChars.filter { it.id !in existingIds }//characterId
-                    currentList.addAll(uniqueNewChars)
-                    _characters.value = currentList
+                    _uiState.update {
+                        it.copy(
+                            characters = currentState.characters + uniqueNewChars,
+                            isLoading = false,
+                            endReached = false
+                        )
+                    }
                     currentPage++// Переход к следующей странице
                 }
             } catch (e: Exception) {
-                Log.e("MainViewModel", "Failed to load page", e)
-            } finally {
-                isLoading = false
-                onComplete()
+                Log.e("MainViewModel", "Failed to load page $currentPage", e)
+                _uiState.update {
+                    it.copy(isLoading = false, errorMessage = e.message ?: "Ошибка загрузки")
+                }
+            }
             }
         }
     }
-}
