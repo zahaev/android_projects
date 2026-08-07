@@ -2,8 +2,9 @@ package com.example.myapplication.model.data.mapper
 
 import com.example.myapplication.model.domain.model.Character
 import com.example.myapplication.model.data.local.entity.CharacterEntity
-import com.example.myapplication.model.data.local.ApiLocation
-import com.example.myapplication.model.data.remote.CharacterDto
+
+import com.example.myapplication.model.data.remote.dto.CharacterDto
+import com.example.myapplication.model.domain.model.Location
 
 fun CharacterEntity.toDomain(): Character =
     Character(
@@ -13,10 +14,25 @@ fun CharacterEntity.toDomain(): Character =
         species = species,
         type = type,
         gender = gender,
-        origin = origin,
-        location = location,
+
+        origin = Location(
+
+            name= originName,
+            url=originUrl
+        ),
+
+        location = Location(
+
+            name = locationName,
+            url = locationUrl
+
+        ),
+
         image = image,
-        episode = episode,
+        episode = if (episode.isBlank())
+            emptyList()
+        else
+            episode.split(","),
         url = url,
         created = created,
         isFavorite = isFavorite
@@ -30,11 +46,17 @@ fun mapCharacterDtoToEntity(dto: CharacterDto): CharacterEntity =
         species = dto.species,
         type = dto.type,
         gender = dto.gender,
-        origin = ApiLocation(dto.origin.name, dto.origin.url),
-        location = ApiLocation(dto.location.name, dto.location.url),
+
+        originName = dto.origin?.name?:"",
+        originUrl =  dto.origin?.url ?:"",
+
+        locationName = dto.location?.name?:"",
+        locationUrl = dto.location?.url ?:"",
+
         image = dto.image,
-        episode = dto.episode,
-        firstEpisodeName = null,
+
+        episode = dto.episode.joinToString(","),
+
         url = dto.url,
         created = dto.created,
         isFavorite = false
@@ -48,11 +70,15 @@ fun Character.toEntity(): CharacterEntity =
         species = species,
         type = type,
         gender = gender,
-        origin = origin,
-        location = location,
+
+        originName = origin.name,
+        originUrl = origin.url,
+
+        locationName = location.name,
+        locationUrl = location.url,
+
         image = image,
-        episode = episode,
-        firstEpisodeName = null,
+        episode = episode.joinToString(","),
         url = url,
         created = created,
         isFavorite = isFavorite
