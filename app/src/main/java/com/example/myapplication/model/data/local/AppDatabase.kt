@@ -11,7 +11,7 @@ import com.example.myapplication.model.data.local.entity.CharacterEntity
 @Database(
     entities = [CharacterEntity::class,
         MetadataEntity::class],
-    version = 4, exportSchema = false
+    version = 5, exportSchema = false
 )
 @TypeConverters(RoomConverters::class)
 abstract class AppDatabase : RoomDatabase() {

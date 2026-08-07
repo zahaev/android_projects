@@ -29,24 +29,28 @@ class CharacterRepositoryImpl(
         page: Int,
         pageSize: Int
     ): List<Character> = withContext(Dispatchers.IO) {
-        val offset = (page-1) * pageSize
-        val localData = localDataSource.getCharactersPage(offset, pageSize)
-        if (localData.isEmpty()) {
-            try {
-                Log.d("Repo", "Loading from network, page=$page")
+        try {
+            // 1. Пытаемся получить свежие данные из сети
+            val remoteDtos = remoteDataSource.getCharacters(page)
 
-                val remoteData = remoteDataSource.getCharacters(page)
+            // 2. Маппим DTO (Сеть) -> Entity (БД)
+            val entities = remoteDtos.map { mapCharacterDtoToEntity(it) }
 
-                val entities = remoteData.map { mapCharacterDtoToEntity(it) }//mapper CharacterDto -> CharacterEntity
-                //Сохраняем в локальную БД.
-                localDataSource.insertAll(entities)
-            } catch (e: Exception) {
-                Log.e("Repo", "Network load failed: ${e.message}", e)
-            }
+            // 3. Сохраняем в локальную БД (Room обновит существующие записи по id)
+            localDataSource.insertAll(entities)
+
+            // 4. Возвращаем Domain-модели из БД.
+            // Это гарантирует, что мы получим актуальный флаг isFavorite,
+            // который мог быть изменен пользователем ранее.
+            val offset = (page - 1) * pageSize
+            localDataSource.getCharactersPage(offset, pageSize).map { it.toDomain() }
+
+        } catch (e: Exception) {
+            // 5. FALLBACK: Если сети нет, тихо отдаем данные из локального кэша
+            Log.e("CharacterRepository", "Network request failed, falling back to local cache", e)
+            val offset = (page - 1) * pageSize
+            localDataSource.getCharactersPage(offset, pageSize).map { it.toDomain() }
         }
-        // Всегда возвращаем данные из локальной БД для запрошенного offset
-       localDataSource.getCharactersPage(offset, pageSize)
-           .map { it.toDomain() }
     }
     override suspend fun getFavorites(): List<Character> = withContext(Dispatchers.IO) {
         localDataSource.getFavorites().map { it.toDomain() }
