@@ -4,5 +4,6 @@ data class CharactersUiState(
     val characters: List<Character> = emptyList(),
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
-    val endReached: Boolean = false
+    val endReached: Boolean = false,
+    val searchQuery:String =""
 )

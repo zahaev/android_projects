@@ -6,5 +6,8 @@ import retrofit2.http.Query
 interface RickMortyApi {
 
     @GET("character")
-    suspend fun getCharacters(@Query("page")page:Int): CharacterResponce
+    suspend fun getCharacters(
+        @Query("page")page:Int,
+        @Query("name")name:String?=null
+    ): CharacterResponce
 }

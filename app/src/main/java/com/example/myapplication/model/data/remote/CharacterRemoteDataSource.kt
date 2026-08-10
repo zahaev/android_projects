@@ -11,4 +11,13 @@ class CharacterRemoteDataSource(
         return api.getCharacters(page).results// Отправляем запрос и возвращаем список персонажей
 
     }
+    suspend fun searchCharacters(
+        query:String,
+        page: Int
+    ):List<CharacterDto>{
+        return  api.getCharacters(
+                page=page,
+                name = query
+                ).results
+    }
 }

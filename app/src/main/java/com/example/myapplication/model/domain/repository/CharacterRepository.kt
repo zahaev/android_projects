@@ -11,7 +11,14 @@ interface CharacterRepository {
      * Получает страницу персонажей.
      * Реализация сама решает, брать из сети или кэша.
      */
-
+    suspend fun searchCharacters(
+    query: String,
+    page: Int,
+    pageSize: Int
+    ):List<Character>
+    /**
+     * Поиск персонажей.
+     */
     suspend fun getCharacterById(id: Int): Character?
     /**
      * Получает персонажа по ID (например, для экрана деталей)

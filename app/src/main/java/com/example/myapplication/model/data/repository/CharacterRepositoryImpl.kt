@@ -70,5 +70,18 @@ class CharacterRepositoryImpl(
         withContext(Dispatchers.IO) {
             localDataSource.getCharacterById(id)?.toDomain()
         }
+    override suspend fun searchCharacters(
+        query: String,
+        page: Int,
+        pageSize: Int
+    ): List<Character> = withContext(Dispatchers.IO) {
 
+        val remoteData = remoteDataSource.searchCharacters(
+            query = query,
+            page = page
+        )
+        remoteData
+            .map { mapCharacterDtoToEntity(it) }
+            .map { it.toDomain() }
+    }
 }
