@@ -1,156 +1,357 @@
 package com.example.myapplication.viewmodel
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.myapplication.model.domain.model.Character
+import com.example.myapplication.model.domain.repository.CharacterRepository
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import com.example.myapplication.model.data.local.ApiLocation
-import com.example.myapplication.model.domain.repository.CharacterRepository
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class MainViewModel(
     private val repository: CharacterRepository
 ) : ViewModel() {
-    private var searchJob:Job? = null
+
     private val _uiState = MutableStateFlow(
-        CharactersUiState())
+        CharactersUiState()
+    )
+
     val uiState: StateFlow<CharactersUiState> =
         _uiState.asStateFlow()
 
+    // Текущая страница API
     private var currentPage = 1
 
-    fun onSearchQueryChange(query:String){
+    // Job поиска с debounce
+    private var searchJob: Job? = null
 
+    // Job загрузки страницы
+    private var loadJob: Job? = null
+
+    // Размер страницы
+    private val pageSize = 20
+
+
+    // ============================================================
+    // ПЕРВИЧНАЯ ЗАГРУЗКА
+    // ============================================================
+
+    fun loadFirstPage() {
+
+        currentPage = 1
+
+        _uiState.update {
+            it.copy(
+                characters = emptyList(),
+                isLoading = false,
+                errorMessage = null,
+                endReached = false
+            )
+        }
+
+        loadNextPage()
+    }
+
+
+    // ============================================================
+    // ПОИСК
+    // ============================================================
+
+    fun onSearchQueryChange(query: String) {
+
+        // Сохраняем текст поиска
         _uiState.update {
             it.copy(
                 searchQuery = query,
                 errorMessage = null
             )
         }
+
+        // Отменяем предыдущий отложенный поиск
         searchJob?.cancel()
 
         searchJob = viewModelScope.launch {
-            delay(300)
-            currentPage=1
 
-            _uiState.update {
-                it.copy(
-                    characters = emptyList(),
-                    isLoading = false,
-                    errorMessage = null,
-                    endReached = false
-                )
-            }
-            loadNextPage()
+            // Небольшая задержка,
+            // чтобы не отправлять запрос на каждый символ
+            delay(300)
+
+            restartFromFirstPage()
         }
     }
-    fun loadFirstPage() {
-        currentPage = 1
-        _uiState.update {it.copy(
-            characters = emptyList(), // Очистка UI перед новой загрузкой
-            isLoading = false,//нет прогрузки
-            errorMessage = null,
-            endReached = false
+
+
+    // ============================================================
+    // ФИЛЬТР STATUS
+    // ============================================================
+
+    fun onStatusChange(status: String?) {
+
+        _uiState.update {
+            it.copy(
+                selectedStatus = status,
+                errorMessage = null
             )
         }
+
+        restartFromFirstPage()
+    }
+
+
+    // ============================================================
+    // ФИЛЬТР SPECIES
+    // ============================================================
+
+    fun onSpeciesChange(species: String?) {
+
+        _uiState.update {
+            it.copy(
+                selectedSpecies = species,
+                errorMessage = null
+            )
+        }
+
+        restartFromFirstPage()
+    }
+
+
+    // ============================================================
+    // ФИЛЬТР GENDER
+    // ============================================================
+
+    fun onGenderChange(gender: String?) {
+
+        _uiState.update {
+            it.copy(
+                selectedGender = gender,
+                errorMessage = null
+            )
+        }
+
+        restartFromFirstPage()
+    }
+
+
+    // ============================================================
+    // СБРОС ФИЛЬТРОВ
+    // ============================================================
+
+    fun resetFilters() {
+
+        searchJob?.cancel()
+
+        _uiState.update {
+            it.copy(
+                searchQuery = "",
+                selectedStatus = null,
+                selectedSpecies = null,
+                selectedGender = null,
+
+                characters = emptyList(),
+
+                isLoading = false,
+                errorMessage = null,
+                endReached = false
+            )
+        }
+
+        currentPage = 1
+
         loadNextPage()
     }
 
-    fun toggleFavorite(characterId: Int) {
-        viewModelScope.launch {
-            try {
-                repository.toggleFavorite(characterId)
-                // Обновляем список чтобы изменить иконку избранного без перезагрузки всей страницы
-                _uiState.update { currentState->
-                    val updatedList = currentState.characters.map{char ->
-                        if(char.id==characterId) char.copy(isFavorite = !char.isFavorite)
-                        else char
-                    }
-                    currentState.copy(characters = updatedList)
-                }
-            }
-            catch (e: Exception){
-                Log.e("MainViewModel","Failed to toggle favorite",e)
-            }
+
+    // ============================================================
+    // ПЕРЕЗАПУСК С ПЕРВОЙ СТРАНИЦЫ
+    // ============================================================
+
+    private fun restartFromFirstPage() {
+
+        // Отменяем предыдущую загрузку
+        loadJob?.cancel()
+
+        currentPage = 1
+
+        _uiState.update {
+            it.copy(
+                characters = emptyList(),
+                isLoading = false,
+                errorMessage = null,
+                endReached = false
+            )
         }
+
+        loadNextPage()
     }
 
+
+    // ============================================================
+    // ЗАГРУЗКА СЛЕДУЮЩЕЙ СТРАНИЦЫ
+    // ============================================================
+
     fun loadNextPage() {
+
         val state = _uiState.value
-            //если прогружается или жостигнут конец списка
-            // то ничего не происходит
-        if (state.isLoading || state.endReached){
+
+        // Если уже идёт загрузка —
+        // новый запрос не отправляем
+        if (state.isLoading) {
             return
         }
+
+        // Если API сообщил, что страниц больше нет
+        if (state.endReached) {
+            return
+        }
+
+        // Запоминаем параметры именно этого запроса.
+        // Это важно, если пользователь быстро меняет фильтр.
+        val page = currentPage
+        val query = state.searchQuery.trim()
+
+        val status = state.selectedStatus
+        val species = state.selectedSpecies
+        val gender = state.selectedGender
+
+        // Показываем loading
         _uiState.update {
             it.copy(
                 isLoading = true,
                 errorMessage = null
-                )
-            }
-        viewModelScope.launch {
+            )
+        }
+
+        loadJob = viewModelScope.launch {
+
             try {
-                //Получаем поисковой запрос
-                val query= _uiState.value.searchQuery.trim()
+
                 /*
-              * Если строка поиска пустая —
-              * обычная загрузка персонажей.
-              *
-              * Если строка заполнена —
-              * поиск через API.
-              */
-                val newChars = if(query.isBlank()){
+                 * ВАЖНО:
+                 *
+                 * Теперь поиск и фильтры идут
+                 * через ОДИН метод Repository.
+                 *
+                 * Никакого отдельного searchCharacters()
+                 * больше не нужно.
+                 */
+
+                val newCharacters =
                     repository.getCharactersPage(
-                     page = currentPage,
-                        20
+                        page = page,
+                        pageSize = pageSize,
+                        searchQuery = query,
+                        status = status,
+                        species = species,
+                        gender = gender
                     )
-                }else{
-                    repository.searchCharacters(
-                        query = query,
-                        page = currentPage,
-                        pageSize = 20
-                    )
-                }
-                if (newChars.isEmpty()) {
-                  _uiState.update {
-                      it.copy(
-                          isLoading = false,
-                          endReached = true
-                      ) }
-                } else {
-                    _uiState.update { currentState->
-                        val existingIds = currentState.characters
-                            .map { it.id }
-                            .toSet()  //characterId
-                        // Фильтруем дубликаты
-                        val uniqueNewChars =
-                            newChars.filter {
-                                it.id !in existingIds
-                            }//characterId
-                        currentState.copy(
-                            characters =
-                                currentState.characters + uniqueNewChars,
+
+                // API вернул пустую страницу
+                if (newCharacters.isEmpty()) {
+
+                    _uiState.update {
+                        it.copy(
                             isLoading = false,
-                            endReached = false
+                            endReached = true
                         )
                     }
-                    currentPage++// Переход к следующей странице
+
+                    return@launch
                 }
+
+
+                _uiState.update { currentState ->
+
+                    // ID уже отображаемых персонажей
+                    val existingIds =
+                        currentState.characters
+                            .map { it.id }
+                            .toSet()
+
+                    // Убираем возможные дубликаты
+                    val uniqueCharacters =
+                        newCharacters.filter { character ->
+                            character.id !in existingIds
+                        }
+
+                    currentState.copy(
+                        characters =
+                            currentState.characters +
+                                    uniqueCharacters,
+
+                        isLoading = false,
+
+                        endReached = false
+                    )
+                }
+
+                // Переходим к следующей странице
+                currentPage++
+
             } catch (e: Exception) {
-                Log.e("MainViewModel",
-                    "Failed to load page $currentPage", e)
+
+                Log.e(
+                    "MainViewModel",
+                    "Failed to load page $page",
+                    e
+                )
+
                 _uiState.update {
-                    it.copy(isLoading = false,
-                        errorMessage = e.message ?: "Ошибка загрузки")
+                    it.copy(
+                        isLoading = false,
+                        errorMessage =
+                            e.message ?: "Ошибка загрузки"
+                    )
                 }
+            }
+        }
+    }
+
+
+    // ============================================================
+    // ИЗБРАННОЕ
+    // ============================================================
+
+    fun toggleFavorite(characterId: Int) {
+
+        viewModelScope.launch {
+
+            try {
+
+                repository.toggleFavorite(characterId)
+
+                _uiState.update { currentState ->
+
+                    val updatedList =
+                        currentState.characters.map { character ->
+
+                            if (character.id == characterId) {
+
+                                character.copy(
+                                    isFavorite =
+                                        !character.isFavorite
+                                )
+
+                            } else {
+                                character
+                            }
+                        }
+
+                    currentState.copy(
+                        characters = updatedList
+                    )
+                }
+
+            } catch (e: Exception) {
+
+                Log.e(
+                    "MainViewModel",
+                    "Failed to toggle favorite",
+                    e
+                )
             }
         }
     }

@@ -1,5 +1,14 @@
 package com.example.myapplication.ui.screens
 
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -156,6 +165,29 @@ fun CharacterListScreen(
             Header(
                 searchQuery = uiState.searchQuery,
                 onSearchQueryChange = viewModel::onSearchQueryChange
+            )
+            CharacterFilters(
+
+                selectedStatus =
+                    uiState.selectedStatus,
+
+                selectedSpecies =
+                    uiState.selectedSpecies,
+
+                selectedGender =
+                    uiState.selectedGender,
+
+                onStatusChange =
+                    viewModel::onStatusChange,
+
+                onSpeciesChange =
+                    viewModel::onSpeciesChange,
+
+                onGenderChange =
+                    viewModel::onGenderChange,
+
+                onReset =
+                    viewModel::resetFilters
             )
 
             /*
@@ -401,7 +433,8 @@ fun CharacterListScreen(
 private fun Header(
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit
-) {
+)
+{
 
     Column(
         modifier = Modifier
@@ -454,7 +487,165 @@ private fun Header(
         )
     }
 }
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun CharacterFilters(
+    selectedStatus: String?,
+    selectedSpecies: String?,
+    selectedGender: String?,
+    onStatusChange: (String?) -> Unit,
+    onSpeciesChange: (String?) -> Unit,
+    onGenderChange: (String?) -> Unit,
+    onReset: () -> Unit
+) {
 
+    val statuses = listOf(
+        "Alive",
+        "Dead",
+        "unknown"
+    )
+
+    val species = listOf(
+        "Human",
+        "Alien",
+        "Humanoid",
+        "Animal",
+        "Robot",
+        "Cronenberg",
+        "Disease"
+    )
+
+    val genders = listOf(
+        "Female",
+        "Male",
+        "Genderless",
+        "unknown"
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = 16.dp,
+                vertical = 8.dp
+            ),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+
+        // Фильтр по статусу
+        FilterDropdown(
+            title = "Статус",
+            selectedValue = selectedStatus,
+            values = statuses,
+            onValueSelected = onStatusChange
+        )
+
+        // Фильтр по species
+        FilterDropdown(
+            title = "Species",
+            selectedValue = selectedSpecies,
+            values = species,
+            onValueSelected = onSpeciesChange
+        )
+
+        // Фильтр по gender
+        FilterDropdown(
+            title = "Пол",
+            selectedValue = selectedGender,
+            values = genders,
+            onValueSelected = onGenderChange
+        )
+
+        // Кнопка сброса
+        if (
+            selectedStatus != null ||
+            selectedSpecies != null ||
+            selectedGender != null
+        ) {
+
+            OutlinedButton(
+                onClick = onReset,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "Сбросить фильтры"
+                )
+            }
+        }
+    }
+}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun FilterDropdown(
+    title: String,
+    selectedValue: String?,
+    values: List<String>,
+    onValueSelected: (String?) -> Unit
+) {
+    var expanded by remember {
+        mutableStateOf(false)
+    }
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = {
+            expanded = !expanded
+        }
+
+    ) {
+        OutlinedTextField(
+
+            value = selectedValue?:title,
+            onValueChange = {},
+
+            readOnly = true,
+
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor(),
+            trailingIcon = {
+                ExposedDropdownMenuDefaults
+                    .TrailingIcon(
+                        expanded = expanded
+                    )
+            },
+            colors = ExposedDropdownMenuDefaults
+                .outlinedTextFieldColors()
+        )
+        ExposedDropdownMenu(
+            expanded=expanded,
+            onDismissRequest = {
+                expanded = false
+            }
+        ) {
+            //Пункт: Все
+
+            DropdownMenuItem(
+                text={
+                    Text("Все")
+                },
+                onClick = {
+
+                    onValueSelected(null)
+
+                    expanded = false
+                }
+            )
+            //Значения фильтра
+            values.forEach{ value ->
+
+                DropdownMenuItem(
+                    text={
+                        Text(value)
+                    },
+                    onClick = {
+                        onValueSelected(value)
+                        expanded=false
+                    }
+                )
+            }
+        }
+    }
+}
 
 /*
  * ============================================================

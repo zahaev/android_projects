@@ -2,6 +2,7 @@
 package com.example.myapplication.model.data.repository
 
 import android.util.Log
+import androidx.room.Query
 
 import com.example.myapplication.model.data.local.CharacterLocalDataSource
 import com.example.myapplication.model.data.remote.CharacterRemoteDataSource
@@ -27,28 +28,90 @@ class CharacterRepositoryImpl(
 
     override suspend fun getCharactersPage(
         page: Int,
-        pageSize: Int
+        pageSize: Int,
+        searchQuery: String,
+        status: String?,
+        species: String?,
+        gender: String?
     ): List<Character> = withContext(Dispatchers.IO) {
         try {
+            // Определяем, используется ли поиск или хотя бы один фильтр
+            val hasFilters =
+                searchQuery.isNotBlank() ||
+                        !status.isNullOrBlank() ||
+                        !species.isNullOrBlank() ||
+                        !gender.isNullOrBlank()
             // 1. Пытаемся получить свежие данные из сети
-            val remoteDtos = remoteDataSource.getCharacters(page)
+            val remoteDtos = remoteDataSource.getCharacters(
+                page = page,
+                name = searchQuery
+                    .trim()
+                    .takeIf { it.isNotBlank() },
+
+                status = status
+                    ?.takeIf { it.isNotBlank() },
+
+                species = species
+                    ?.takeIf { it.isNotBlank() },
+
+                gender = gender
+                    ?.takeIf { it.isNotBlank() })
 
             // 2. Маппим DTO (Сеть) -> Entity (БД)
             val entities = remoteDtos.map { mapCharacterDtoToEntity(it) }
 
             // 3. Сохраняем в локальную БД (Room обновит существующие записи по id)
             localDataSource.insertAll(entities)
+            /*
+                * Если используется поиск или фильтр,
+                * возвращаем именно результаты API.
+                *
+                * Нельзя брать здесь данные через
+                * getCharactersPage() из Room,
+                * потому что Room не знает о фильтрах API.
+                */
+            if (hasFilters) {
 
-            // 4. Возвращаем Domain-модели из БД.
-            // Это гарантирует, что мы получим актуальный флаг isFavorite,
-            // который мог быть изменен пользователем ранее.
+                return@withContext entities.map { it.toDomain() }
+            }
+
+            /*
+            * Обычный список без поиска и фильтров.
+            * Здесь используем Room.
+            */
             val offset = (page - 1) * pageSize
-            localDataSource.getCharactersPage(offset, pageSize).map { it.toDomain() }
+            return@withContext localDataSource
+                .getCharactersPage(offset, pageSize).map { it.toDomain() }
 
         } catch (e: Exception) {
-            // 5. FALLBACK: Если сети нет, тихо отдаем данные из локального кэша
-            Log.e("CharacterRepository", "Network request failed, falling back to local cache", e)
+            //  Если сети нет,отдаем данные из локального кэша
+            Log.e("CharacterRepository",
+                "Network request failed, ", e)
+            /*
+            * если это запрос с фильтрами или поиском
+            * нельзя отдавать случайные данные из Room
+            * поэтому для фильтрованного запроса
+            * возвращаем ошибку дальше во ViewModel
+            */
+            /*
+       * При поиске/фильтрах нельзя показывать
+       * случайные данные из Room.
+       */
+            if (
+                searchQuery.isNotBlank() ||
+                !status.isNullOrBlank() ||
+                !species.isNullOrBlank() ||
+                !gender.isNullOrBlank()
+            ) {
+                throw e
+            }
+
+            /*
+             * Для обычного списка без фильтров
+             * оставляем fallback на Room.
+             */
             val offset = (page - 1) * pageSize
+
             localDataSource.getCharactersPage(offset, pageSize).map { it.toDomain() }
         }
     }
@@ -70,18 +133,5 @@ class CharacterRepositoryImpl(
         withContext(Dispatchers.IO) {
             localDataSource.getCharacterById(id)?.toDomain()
         }
-    override suspend fun searchCharacters(
-        query: String,
-        page: Int,
-        pageSize: Int
-    ): List<Character> = withContext(Dispatchers.IO) {
 
-        val remoteData = remoteDataSource.searchCharacters(
-            query = query,
-            page = page
-        )
-        remoteData
-            .map { mapCharacterDtoToEntity(it) }
-            .map { it.toDomain() }
-    }
 }
