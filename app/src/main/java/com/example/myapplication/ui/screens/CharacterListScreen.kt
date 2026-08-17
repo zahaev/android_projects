@@ -38,6 +38,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -73,6 +74,7 @@ import com.example.myapplication.viewmodel.MainViewModelFactory
 @Composable
 fun CharacterListScreen(
     onCharacterClick: (Int) -> Unit,
+    onFavoritesClick:() -> Unit,
     viewModel: MainViewModel = viewModel(
         factory = MainViewModelFactory(
             LocalContext.current.applicationContext
@@ -163,8 +165,11 @@ fun CharacterListScreen(
              * - пустой результат
              */
             Header(
+                //передача функций в Header из CharacterListScreen
                 searchQuery = uiState.searchQuery,
+                onFavoritesClick = onFavoritesClick,
                 onSearchQueryChange = viewModel::onSearchQueryChange
+
             )
             CharacterFilters(
 
@@ -432,7 +437,8 @@ fun CharacterListScreen(
 @Composable
 private fun Header(
     searchQuery: String,
-    onSearchQueryChange: (String) -> Unit
+    onSearchQueryChange: (String) -> Unit,
+    onFavoritesClick:() -> Unit
 )
 {
 
@@ -446,19 +452,29 @@ private fun Header(
                 bottom = 8.dp
             )
     ) {
+       Row(
+           modifier = Modifier.fillMaxWidth(),
+           verticalAlignment = Alignment.CenterVertically
+       ) {
+           Text(
+               text = "Rick and Morty API",
+               fontSize = 20.sp,
+               fontWeight = FontWeight.Bold,
+               color = MaterialTheme
+                   .colorScheme
+                   .onBackground,
 
-        Text(
-            text = "Rick and Morty API",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme
-                .colorScheme
-                .onBackground,
-
-            modifier = Modifier.padding(
-                bottom = 12.dp
-            )
-        )
+               modifier = Modifier.weight(1f)
+               )
+           IconButton(
+               onClick = onFavoritesClick
+           ) {
+               Icon(
+                   imageVector = Icons.Default.Star,
+                   contentDescription = "Избранное"
+               )
+           }
+       }
 
         OutlinedTextField(
             value = searchQuery,
