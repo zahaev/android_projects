@@ -63,14 +63,16 @@ fun CharacterDetailScreen(
                 .verticalScroll(rememberScrollState())//делаем прокручиваемым
                 .background(MaterialTheme.colorScheme.background)
                 .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.Start
         ) {
             character?.let { char ->//проверка загружен ли перс
                 AsyncImage(
+
                     model = char.image,
                     contentDescription = char.name,
                     modifier = Modifier
                         .size(200.dp)
+                        .align(Alignment.CenterHorizontally)
                         .clip(RoundedCornerShape(16.dp)),
                     contentScale = ContentScale.Crop
                 )
@@ -78,27 +80,54 @@ fun CharacterDetailScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally),
                     text = char.name,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))//разделение в 8 dp
 
                 Text(
-                    text = "${char.status} • ${char.species}",
+                    text = "Status • ${char.status} ",
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                Text(
+                    text = "Species • ${char.species} ",
                     fontSize = 16.sp,
                     color = MaterialTheme.colorScheme.onBackground
                 )
 
-                Spacer(modifier = Modifier.height(24.dp))
-
                 Text(
-                    text = "${char.gender} • ${char.type}",
+                    text = "Type •  ${char.type}  ",
                     fontSize = 16.sp,
                     color = MaterialTheme.colorScheme.onBackground
                 )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Text(
+                    text = "First seen in • ${char.origin.name}  ",
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                Text(
+                    text = "Last known location •  ${char.location.name}  ",
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Text(
+                    text = "Episodes •  ${char.episode}  ",
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+
             } ?: run {
                 CircularProgressIndicator()
             }

@@ -471,6 +471,7 @@ private fun Header(
            ) {
                Icon(
                    imageVector = Icons.Default.Star,
+                   tint = Color(0xFFFFD700),
                    contentDescription = "Избранное"
                )
            }

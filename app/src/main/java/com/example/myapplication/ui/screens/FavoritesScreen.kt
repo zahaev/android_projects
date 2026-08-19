@@ -74,7 +74,6 @@ fun FavoritesScreen(
             )
             }
 
-
             when {
 
                 uiState.isLoading -> {
@@ -88,7 +87,9 @@ fun FavoritesScreen(
                         CircularProgressIndicator()
                     }
                 }
-
+                // ============================================================
+                // ОШИБКА
+                // ============================================================
                 uiState.errorMessage != null -> {
 
                     Box(
