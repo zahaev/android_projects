@@ -1,4 +1,4 @@
-package com.example.myapplication.di
+/*package com.example.myapplication.di
 
 import android.content.Context
 import com.example.myapplication.model.data.local.AppDatabase
@@ -20,4 +20,4 @@ object ServiceLocator {
             remoteDataSource
         )
     }
-}
+}*/

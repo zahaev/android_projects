@@ -11,8 +11,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import com.example.myapplication.viewmodel.FavoritesUiState
 import java.security.spec.ECField
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class FavoritesViewModel(
+@HiltViewModel
+class FavoritesViewModel @Inject constructor(
     private val repository:CharacterRepository
 ):ViewModel() {
     private val _uiState = MutableStateFlow(FavoritesUiState())

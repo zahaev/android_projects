@@ -26,10 +26,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 
 
 import com.example.myapplication.viewmodel.FavoritesViewModel
-import com.example.myapplication.viewmodel.FavoritesViewModelFactory
+//import com.example.myapplication.viewmodel.FavoritesViewModelFactory
 
 @Composable
 fun FavoritesScreen(
@@ -37,10 +38,7 @@ fun FavoritesScreen(
     onCharacterListClick:() -> Unit
 ) {
     val context = LocalContext.current
-    val viewModel:FavoritesViewModel=
-        viewModel(
-            factory = FavoritesViewModelFactory(context)
-        )
+    val viewModel:FavoritesViewModel = hiltViewModel()
     val uiState by viewModel.uiState
         .collectAsStateWithLifecycle()
    //Каждый раз при открытии экрана

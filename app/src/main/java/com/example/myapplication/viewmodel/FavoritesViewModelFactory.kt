@@ -1,4 +1,4 @@
-package com.example.myapplication.viewmodel
+/*package com.example.myapplication.viewmodel
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
@@ -21,4 +21,4 @@ class FavoritesViewModelFactory (
            "Unknown ViewModel class"
        )
     }
-}
+}*/

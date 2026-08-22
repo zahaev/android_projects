@@ -63,24 +63,20 @@ import androidx.compose.runtime.snapshotFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.myapplication.model.domain.model.Character
 import com.example.myapplication.viewmodel.MainViewModel
-import com.example.myapplication.viewmodel.MainViewModelFactory
-
+//import com.example.myapplication.viewmodel.MainViewModelFactory
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun CharacterListScreen(
     onCharacterClick: (Int) -> Unit,
     onFavoritesClick:() -> Unit,
-    viewModel: MainViewModel = viewModel(
-        factory = MainViewModelFactory(
-            LocalContext.current.applicationContext
-        )
+    viewModel: MainViewModel = hiltViewModel()
     )
-) {
+ {
     // Состояние экрана
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 

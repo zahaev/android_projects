@@ -9,8 +9,11 @@ import com.example.myapplication.model.domain.model.Character
 //import com.example.myapplication.model.repository.CharacterRepository
 import com.example.myapplication.model.domain.repository.CharacterRepository
 import kotlinx.coroutines.launch
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class CharacterDetailViewModel(
+@HiltViewModel
+class CharacterDetailViewModel @Inject constructor(
     private val repository: CharacterRepository) : ViewModel() {
 
     private val _character = MutableLiveData<Character?>()

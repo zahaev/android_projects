@@ -22,16 +22,15 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.myapplication.model.domain.model.Character
 import com.example.myapplication.viewmodel.CharacterDetailViewModel
-import com.example.myapplication.viewmodel.CharacterDetailViewModelFactory
+//import com.example.myapplication.viewmodel.CharacterDetailViewModelFactory
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CharacterDetailScreen(
     characterId: Int,
     onBack: () -> Unit,//возврат назад
-    viewModel: CharacterDetailViewModel = viewModel(
-        factory = CharacterDetailViewModelFactory(LocalContext.current.applicationContext)
-    )
+    viewModel: CharacterDetailViewModel = hiltViewModel()
 ) {
     val character by viewModel.character.observeAsState()
 

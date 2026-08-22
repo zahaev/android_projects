@@ -1,5 +1,5 @@
 // viewmodel/CharacterDetailViewModelFactory.kt
-package com.example.myapplication.viewmodel
+/*package com.example.myapplication.viewmodel
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
@@ -18,3 +18,4 @@ class CharacterDetailViewModelFactory(
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
+*/
