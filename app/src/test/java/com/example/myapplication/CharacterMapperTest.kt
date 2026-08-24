@@ -425,5 +425,6 @@ class CharacterMapperTest {
         val character = entity.toDomain()
 
         assertTrue(character.isFavorite)
+
     }
 }
