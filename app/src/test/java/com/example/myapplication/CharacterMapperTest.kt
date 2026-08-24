@@ -1,8 +1,6 @@
-package com.example.myapplication
+package com.example.myapplication.model.data.mapper
 
 import com.example.myapplication.model.data.local.entity.CharacterEntity
-import com.example.myapplication.model.data.mapper.mapCharacterDtoToEntity
-import com.example.myapplication.model.data.mapper.toDomain
 import com.example.myapplication.model.data.remote.dto.CharacterDto
 import com.example.myapplication.model.data.remote.dto.LocationDto
 import org.junit.Assert.assertEquals
@@ -18,6 +16,7 @@ class CharacterMapperTest {
 
     @Test
     fun `mapCharacterDtoToEntity maps all fields correctly`() {
+
         val dto = CharacterDto(
             id = 1,
             name = "Rick Sanchez",
@@ -90,8 +89,7 @@ class CharacterMapperTest {
             entity.created
         )
 
-        // При преобразовании DTO -> Entity
-        // персонаж не должен автоматически становиться избранным.
+        // DTO -> Entity не должен автоматически делать персонажа избранным
         assertFalse(entity.isFavorite)
     }
 
@@ -102,6 +100,7 @@ class CharacterMapperTest {
 
     @Test
     fun `mapCharacterDtoToEntity handles null origin and location`() {
+
         val dto = CharacterDto(
             id = 2,
             name = "Unknown Character",
@@ -129,6 +128,10 @@ class CharacterMapperTest {
 
         assertEquals("", entity.locationName)
         assertEquals("", entity.locationUrl)
+
+        assertEquals("", entity.episode)
+
+        assertFalse(entity.isFavorite)
     }
 
 
@@ -138,6 +141,7 @@ class CharacterMapperTest {
 
     @Test
     fun `mapCharacterDtoToEntity maps status species and gender`() {
+
         val dto = CharacterDto(
             id = 3,
             name = "Test Character",
@@ -158,9 +162,7 @@ class CharacterMapperTest {
 
             image = "https://example.com/image.jpg",
 
-            episode = listOf(
-                "episode1"
-            ),
+            episode = listOf("episode1"),
 
             url = "https://example.com/character/3",
 
@@ -182,6 +184,7 @@ class CharacterMapperTest {
 
     @Test
     fun `toDomain maps all fields correctly`() {
+
         val entity = CharacterEntity(
             id = 1,
             name = "Rick Sanchez",
@@ -257,7 +260,7 @@ class CharacterMapperTest {
             character.created
         )
 
-        // Проверяем сохранение favorite-флага.
+        // Favorite должен сохраниться при Entity -> Domain
         assertTrue(character.isFavorite)
     }
 
@@ -268,6 +271,7 @@ class CharacterMapperTest {
 
     @Test
     fun `toDomain returns empty episode list when episode is blank`() {
+
         val entity = CharacterEntity(
             id = 4,
             name = "Test Character",
@@ -300,11 +304,12 @@ class CharacterMapperTest {
 
 
     // ============================================================
-    // ENTITY -> DOMAIN WITH NULL-LIKE EMPTY LOCATION DATA
+    // EMPTY LOCATION / ORIGIN
     // ============================================================
 
     @Test
     fun `toDomain correctly maps empty origin and location`() {
+
         val entity = CharacterEntity(
             id = 5,
             name = "Unknown",
@@ -344,5 +349,81 @@ class CharacterMapperTest {
         )
 
         assertFalse(character.isFavorite)
+    }
+
+
+    // ============================================================
+    // FAVORITE = FALSE
+    // ============================================================
+
+    @Test
+    fun `toDomain preserves false favorite flag`() {
+
+        val entity = CharacterEntity(
+            id = 6,
+            name = "Morty Smith",
+            status = "Alive",
+            species = "Human",
+            type = "",
+            gender = "Male",
+
+            originName = "Earth",
+            originUrl = "https://example.com/earth",
+
+            locationName = "Earth",
+            locationUrl = "https://example.com/earth",
+
+            image = "https://example.com/morty.jpg",
+
+            episode = "episode1",
+
+            url = "https://example.com/morty",
+
+            created = "2020-01-01",
+
+            isFavorite = false
+        )
+
+        val character = entity.toDomain()
+
+        assertFalse(character.isFavorite)
+    }
+
+
+    // ============================================================
+    // FAVORITE = TRUE
+    // ============================================================
+
+    @Test
+    fun `toDomain preserves true favorite flag`() {
+
+        val entity = CharacterEntity(
+            id = 7,
+            name = "Summer Smith",
+            status = "Alive",
+            species = "Human",
+            type = "",
+            gender = "Female",
+
+            originName = "Earth",
+            originUrl = "https://example.com/earth",
+
+            locationName = "Earth",
+            locationUrl = "https://example.com/earth",
+
+            image = "https://example.com/summer.jpg",
+
+            episode = "episode1",
+
+            url = "https://example.com/summer",
+
+            created = "2020-01-01",
+
+            isFavorite = true
+        )
+
+        val character = entity.toDomain()
+
+        assertTrue(character.isFavorite)
     }
 }
