@@ -1,6 +1,6 @@
 package com.example.myapplication.viewmodel
 
-import android.util.Log
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.model.domain.repository.CharacterRepository
@@ -296,11 +296,6 @@ class MainViewModel @Inject constructor(
 
             } catch (e: Exception) {
 
-                Log.e(
-                    "MainViewModel",
-                    "Failed to load page $page",
-                    e
-                )
 
                 _uiState.update {
                     it.copy(
@@ -348,13 +343,9 @@ class MainViewModel @Inject constructor(
                     )
                 }
 
-            } catch (e: Exception) {
+            }
+                catch (e: Exception) {
 
-                Log.e(
-                    "MainViewModel",
-                    "Failed to toggle favorite",
-                    e
-                )
             }
         }
     }
