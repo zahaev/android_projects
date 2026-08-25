@@ -1,20 +1,18 @@
 package com.example.myapplication.model.data.remote
 //вызывает API
 //возвращает DTO
-import androidx.core.app.GrammaticalInflectionManagerCompat.GrammaticalGender
-import androidx.core.app.GrammaticalInflectionManagerCompat.getApplicationGrammaticalGender
 import com.example.myapplication.model.data.remote.dto.CharacterDto
 
 class CharacterRemoteDataSource(
     private val api: RickMortyApi
-) {
+) : CharacterRemoteDataSourceContract {
 
-    suspend fun getCharacters(
-        page:Int,
-        name:String? = null,
-        status:String? = null,
-        species: String? = null,
-        gender: String? = null
+    override suspend fun getCharacters(
+        page: Int,
+        name: String?,
+        status: String?,
+        species: String?,
+        gender: String?
     ): List<CharacterDto> {
         return api.getCharacters(
             page = page,
@@ -29,6 +27,7 @@ class CharacterRemoteDataSource(
         query:String,
         page: Int
     ):List<CharacterDto>{
+
         return  api.getCharacters(
                 page=page,
                 name = query

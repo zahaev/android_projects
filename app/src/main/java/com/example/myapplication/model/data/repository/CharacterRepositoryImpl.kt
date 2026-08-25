@@ -1,20 +1,17 @@
 // model/data/repository/CharacterRepositoryImpl.kt
 package com.example.myapplication.model.data.repository
 
-import android.util.Log
-import androidx.room.Query
 
-import com.example.myapplication.model.data.local.CharacterLocalDataSource
-import com.example.myapplication.model.data.remote.CharacterRemoteDataSource
-import com.example.myapplication.model.data.mapper.toDomain
-import com.example.myapplication.model.data.mapper.mapCharacterDtoToEntity
-import com.example.myapplication.model.data.mapper.toEntity
-//import com.example.myapplication.model.data.remote.dto.CharacterDto
-import com.example.myapplication.model.domain.model.Character
 
 import com.example.myapplication.model.domain.repository.CharacterRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+
+import com.example.myapplication.model.data.local.CharacterLocalDataSourceContract
+import com.example.myapplication.model.data.remote.CharacterRemoteDataSourceContract
+import com.example.myapplication.model.data.mapper.toDomain
+import com.example.myapplication.model.data.mapper.mapCharacterDtoToEntity
+import com.example.myapplication.model.domain.model.Character
 
 
 //Спрашивает Local
@@ -22,8 +19,8 @@ import kotlinx.coroutines.withContext
 //Сохраняет в БД
 //Возвращает Domain
 class CharacterRepositoryImpl(
-    private val localDataSource: CharacterLocalDataSource,
-    private val remoteDataSource:CharacterRemoteDataSource
+    private val localDataSource: CharacterLocalDataSourceContract,
+    private val remoteDataSource:CharacterRemoteDataSourceContract
 ) : CharacterRepository {
 
     override suspend fun getCharactersPage(
@@ -85,8 +82,6 @@ class CharacterRepositoryImpl(
 
         } catch (e: Exception) {
             //  Если сети нет,отдаем данные из локального кэша
-            Log.e("CharacterRepository",
-                "Network request failed, ", e)
             /*
             * если это запрос с фильтрами или поиском
             * нельзя отдавать случайные данные из Room
