@@ -189,4 +189,5 @@ dependencies {
 
     androidTestImplementation(libs.androidx.test.espresso.core)
     testImplementation(libs.kotlinx.coroutines.test)
+    kapt(libs.moshi.kotlin.codegen)
 }

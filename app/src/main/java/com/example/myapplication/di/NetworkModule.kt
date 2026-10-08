@@ -18,7 +18,9 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun peovideMoshi(): Moshi= Moshi.Builder().build()
+    fun peovideMoshi(): Moshi= Moshi.Builder()
+        .add(com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory())
+        .build()
 
     @Provides
     @Singleton

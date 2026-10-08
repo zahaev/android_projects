@@ -25,7 +25,7 @@ coroutines = "1.7.3"
 
 # Network
 retrofit = "2.11.0"
-moshi = "1.15.0"
+moshi = "1.15.2"
 
 # Database
 room = "2.6.1"
@@ -122,7 +122,7 @@ retrofit-converter-moshi = { group = "com.squareup.retrofit2", name = "converter
 
 moshi-kotlin = { group = "com.squareup.moshi", name = "moshi-kotlin", version.ref = "moshi" }
 
-
+moshi-kotlin-codegen = { module = "com.squareup.moshi:moshi-kotlin-codegen", version.ref = "moshi" }
 # ============================================================
 # ROOM
 # ============================================================
@@ -151,6 +151,7 @@ androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version
 androidx-test-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutinesTest"}
+
 
 
 [plugins]
